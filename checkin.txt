@@ -1,0 +1,7 @@
+{
+    // string, 22 character business id, maps to business in business.json
+    "business_id": "tnhfDv5Il8EaGSXZGiuQGg"
+
+    // string which is a comma-separated list of timestamps for each checkin, each with format YYYY-MM-DD HH:MM:SS
+    "date": "2016-04-26 19:49:16, 2016-08-30 18:36:57, 2016-10-15 02:45:18, 2016-11-18 01:54:50, 2017-04-20 18:39:06, 2017-05-03 17:58:02"
+}

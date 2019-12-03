@@ -1,0 +1,74 @@
+{
+    // string, 22 character unique user id, maps to the user in user.json
+    "user_id": "Ha3iJu77CxlrFm-vQRs_8g",
+
+    // string, the user's first name
+    "name": "Sebastien",
+
+    // integer, the number of reviews they've written
+    "review_count": 56,
+
+    // string, when the user joined Yelp, formatted like YYYY-MM-DD
+    "yelping_since": "2011-01-01",
+
+    // array of strings, an array of the user's friend as user_ids
+    "friends": [
+        "wqoXYLWmpkEH0YvTmHBsJQ",
+        "KUXLLiJGrjtSsapmxmpvTA",
+        "6e9rJKQC3n0RSKyHLViL-Q"
+    ],
+
+    // integer, number of useful votes sent by the user
+    "useful": 21,
+
+    // integer, number of funny votes sent by the user
+    "funny": 88,
+
+    // integer, number of cool votes sent by the user
+    "cool": 15,
+
+    // integer, number of fans the user has
+    "fans": 1032,
+
+    // array of integers, the years the user was elite
+    "elite": [
+        2012,
+        2013
+    ],
+
+    // float, average rating of all reviews
+    "average_stars": 4.31,
+
+    // integer, number of hot compliments received by the user
+    "compliment_hot": 339,
+
+    // integer, number of more compliments received by the user
+    "compliment_more": 668,
+
+    // integer, number of profile compliments received by the user
+    "compliment_profile": 42,
+
+    // integer, number of cute compliments received by the user
+    "compliment_cute": 62,
+
+    // integer, number of list compliments received by the user
+    "compliment_list": 37,
+
+    // integer, number of note compliments received by the user
+    "compliment_note": 356,
+
+    // integer, number of plain compliments received by the user
+    "compliment_plain": 68,
+
+    // integer, number of cool compliments received by the user
+    "compliment_cool": 91,
+
+    // integer, number of funny compliments received by the user
+    "compliment_funny": 99,
+
+    // integer, number of writer compliments received by the user
+    "compliment_writer": 95,
+
+    // integer, number of photo compliments received by the user
+    "compliment_photos": 50
+}

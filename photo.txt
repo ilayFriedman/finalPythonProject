@@ -1,0 +1,10 @@
+{
+    // string, 22 character unique photo id
+    "photo_id": "_nN_DhLXkfwEkwPNxne9hw",
+    // string, 22 character business id, maps to business in business.json
+    "business_id" : "tnhfDv5Il8EaGSXZGiuQGg",
+    // string, the photo caption, if any
+    "caption" : "carne asada fries",
+    // string, the category the photo belongs to, if any
+    "label" : "food"
+}
