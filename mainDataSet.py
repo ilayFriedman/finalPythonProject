@@ -1,27 +1,17 @@
-import pandas as pd
+import time
+import dask.bag as db
 import dask.dataframe as dd
-
-### import DATA-SET ###
-def makeMiniCorpusCopy (dir_path,name):
-    with open(dir_path+"\\"+name+"_MinCorpus.json","w+") as miniFile:
-        with open(dir_path+"\\"+name+".json") as json_file:
-            for i in range(850):
-                miniFile.write(json_file.readline())
-        json_file.close()
-        print (str(name+"_MinCorpus.json") +" is created! ")
-
-makeMiniCorpusCopy("d:\\documents\\users\\saarzeev\\Downloads\\yelpDataset","user")
-makeMiniCorpusCopy("d:\\documents\\users\\saarzeev\\Downloads\\yelpDataset","tip")
-makeMiniCorpusCopy("d:\\documents\\users\\saarzeev\\Downloads\\yelpDataset","review")
-makeMiniCorpusCopy("d:\\documents\\users\\saarzeev\\Downloads\\yelpDataset","photo")
-makeMiniCorpusCopy("d:\\documents\\users\\saarzeev\\Downloads\\yelpDataset","checkin")
-# makeMiniCorpusCopy("d:\\documents\\users\\saarzeev\\Downloads\\yelpDataset","business")
+import json
 
 
+def getDetailsOnMe(businessName):
+    review_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\review.json").map(json.loads).to_dataframe()
+    business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business.json").map(json.loads).to_dataframe()
+    checkin_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\checkin.json").map(json.loads).to_dataframe()
+    photo_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\photo.json").map(json.loads).to_dataframe()
+    tip_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\tip.json").map(json.loads).to_dataframe()
+    user_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\user.json").map(json.loads).to_dataframe()
+    print(tip_Json.columns)
 
-# Import Dataset
-users = pd
-usersMake = pd.DataFrame('d:\\documents\\users\\saarzeev\\Downloads\\yelpDataset\\user.json',[0,2],columns=['user_id'])
-tips = pd.read_json('d:\\documents\\users\\saarzeev\\Downloads\\yelpDataset\\review_MinCorpus.json', lines=True)
-# print(users.head())
-
+if __name__ == '__main__':
+    getDetailsOnMe("efds")
