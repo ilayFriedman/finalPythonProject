@@ -7,7 +7,7 @@
 
 import sys
 from collections import Counter
-
+import main
 import matplotlib.figure
 import matplotlib.patches
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -476,10 +476,10 @@ class Toplevel1:
         self.SaveRes_Button.configure(takefocus="")
         self.SaveRes_Button.configure(text='''Save results''')
         self.SaveRes_Button.configure(width=86)
-        import mainDataSet
+
         print("......COMPILING DATA, ALMOST......")
         try:
-            self.db = mainDataSet.DataBase("C:\\Users\\User\\Desktop\\DATA_SET")
+            self.db = main.DataBase("C:\\Users\\User\\Desktop\\DATA_SET")
             self.show_DetailsInfo_Frame(False)
         except:
             raise ("CANT CREATE DATABASE!")
