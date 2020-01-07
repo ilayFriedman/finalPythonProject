@@ -121,7 +121,7 @@ class DataBase:
 #         final_model = LogisticRegression(C=0.25)
 #         final_model.fit(X, ratesBinary)
 #         object = final_model
-#         filehandler = open("model", 'wb')
+#         filehandler = open("sentiment_analysis_model", 'wb')
 #         pickle.dump(object, filehandler)
 #         print("done save. now words!")
 # #GIVES THE BEST GOOD/BAD WORDS:
@@ -149,7 +149,7 @@ class DataBase:
     def predictReviewsList(self,reviewsList):
         ans=[]
         vectorizer = pickle.load(open("cv", "rb"))
-        model = pickle.load(open("model", "rb"))
+        model = pickle.load(open("sentiment_analysis_model", "rb"))
         for comment in reviewsList:
             ans.append(model.predict(vectorizer.transform([self.REPLACE_NO_SPACE.sub("", comment.lower())]))[0])
         return ans
@@ -217,7 +217,7 @@ class DataBase:
         return " ".join(self.preprocess_reviews_text(text))
 
     def create_doc_vetor(self, doc, doc2vec_model_path="doc2vec.mdl"):
-        # Load trained doc2vec model
+        # Load trained doc2vec sentiment_analysis_model
         if not doc2vec_model_path:
             doc2vec_model_path = "doc2vec.mdl"
             self.build_doc2vec_model(doc2vec_model_path)
@@ -226,7 +226,7 @@ class DataBase:
         return model_doc2vec.infer_vector(self.preprocess_reviews_text(doc))
 
     def get_vector_cluster(self, vector, kmeans_model_path='kmeans.mdl'):
-        # Load trained KMeans model
+        # Load trained KMeans sentiment_analysis_model
         if not kmeans_model_path:
             return None
 
