@@ -480,6 +480,7 @@ class Toplevel1:
         print("......COMPILING DATA, ALMOST......")
         try:
             self.db = main.DataBase("C:\\Users\\User\\Desktop\\DATA_SET")
+            print("......AFTER CREATION......")
             self.show_DetailsInfo_Frame(False)
         except:
             raise ("CANT CREATE DATABASE!")
