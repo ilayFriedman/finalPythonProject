@@ -1,4 +1,6 @@
 import csv
+
+import nltk
 import numpy as np
 from collections import Counter
 from fuzzywuzzy import fuzz
@@ -6,24 +8,23 @@ import string
 import dask.bag as db
 import json
 import pandas as pd
-from joblib import dump, load
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import pickle
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import CountVectorizer
-# nltk.download('wordnet')
+nltk.download('wordnet')
 import gensim
 from nltk.stem import WordNetLemmatizer
 import gensim.models.doc2vec
 import re
 assert gensim.models.doc2vec.FAST_VERSION > -1, "This will be painfully slow otherwise"
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+import os
 
 class DataBase:
 
     def __init__(self,path):
-        self.review_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\review_MinCorpus_300K.json").map(json.loads).to_dataframe()
-        self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
+        self.review_Json = db.read_text(path + "/selected_entries_reviews_30k.json").map(json.loads).to_dataframe()
+        # self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
         # self.checkin_Json = db.read_text(pathToDataSet+"\\checkin.json").map(json.loads).to_dataframe()
         # self.photo_Json = db.read_text(pathToDataSet+"\\photo.json").map(json.loads).to_dataframe()
         # self.tip_Json = db.read_text(pathToDataSet+"\\tip.json").map(json.loads).to_dataframe()
@@ -193,8 +194,6 @@ class DataBase:
             reviewsList = list(reader)
         print(reviewsList[0])
         ans = self.predictReviewsList(reviewsList[0])
-        # print(ans)
-        #return list: [0]= shows, [1]=precentages
         counter = Counter(ans)
         print([(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter])
         return ([self.predictReviewsList(reviewsList[0]),[(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter],reviewsList])
@@ -209,48 +208,31 @@ class DataBase:
             if lemmatized_token not in self.domain_stopwords and lemmatized_token not in string.punctuation and len(
                     lemmatized_token) > 2:
                 result.append(lemmatized_token)
-            # if token not in self.domain_stopwords and token not in string.punctuation and len(token) > 2:
-            #     result.append(token)
         return result
 
     def preprocess_tfidf(self, text):
         return " ".join(self.preprocess_reviews_text(text))
 
-    def create_doc_vetor(self, doc, doc2vec_model_path="doc2vec.mdl"):
-        # Load trained doc2vec sentiment_analysis_model
-        if not doc2vec_model_path:
-            doc2vec_model_path = "doc2vec.mdl"
-            self.build_doc2vec_model(doc2vec_model_path)
-
-        model_doc2vec = Doc2Vec.load(doc2vec_model_path)
-        return model_doc2vec.infer_vector(self.preprocess_reviews_text(doc))
-
-    def get_vector_cluster(self, vector, kmeans_model_path='kmeans.mdl'):
-        # Load trained KMeans sentiment_analysis_model
-        if not kmeans_model_path:
-            return None
-
-        model_kmeans = load(kmeans_model_path)
-
-        return model_kmeans.predict(vector)
-
     def get_top_keywords(self, data, clusters, labels, n_terms):
         df = pd.DataFrame(data.todense()).groupby(clusters).mean()
-
+        dict = {}
         for i, r in df.iterrows():
             print('\nCluster {}'.format(i))
-            print(','.join([labels[t] for t in np.argsort(r)[-n_terms:]]))
+            list = ','.join([labels[t] for t in np.argsort(r)[-n_terms:]])
+            print(list)
+            dict[i] = list.split(",")[:6]
 
-    def test(self):
-        # self.review_Json['processed review'] = self.review_Json['text'].map(self.preprocess_reviews_text)
+        with open('clusters_labels.json', 'w') as fp:
+            json.dump(dict, fp)
+
+    def create_clusters(self):
 
         # Prepare docs as list of words and an index per doc
         processed_reviews = self.review_Json['text'].compute().values.tolist()
         tfidf = TfidfVectorizer(
-            min_df=5,
-            max_df=0.95,
+            # max_df=0.95,
             max_features=8000,
-            stop_words=gensim.parsing.preprocessing.STOPWORDS,
+            stop_words=self.domain_stopwords,
             analyzer='word',
             token_pattern='[a-zA-Z0-9]+',
             preprocessor=self.preprocess_tfidf
@@ -258,31 +240,65 @@ class DataBase:
         print("Created vectorizer.")
         tfidf.fit(processed_reviews)
         print("Vectorizer fitted.")
-        # dump(tfidf, "tfidf_vectorizer.mdl")
+        pickle.dump(tfidf.vocabulary, open("tfidf_vocabulary", 'wb'))
+
         text = tfidf.transform(processed_reviews)
         print("transformed reviews")
-        # max_k = 14
-        # iters = range(2, max_k + 1, 2)
-        #
-        # print("Started training KMeans...")
-        # sse = []
-        # for k in iters:
-        #     sse.append(
-        #         KMeans(n_clusters=k, init='k-means++', max_iter=100).fit(text).inertia_)
-        #     print('Fit {} clusters'.format(k))
-        #
-        # f, ax = plt.subplots(1, 1)
-        # ax.plot(iters, sse, marker='o')
-        # ax.set_xlabel('Cluster Centers')
-        # ax.set_xticks(iters)
-        # ax.set_xticklabels(iters)
-        # ax.set_ylabel('SSE')
-        # ax.set_title('SSE by Cluster Center Plot')
-        # plt.show()
+        # # max_k = 14
+        # # iters = range(2, max_k + 1, 2)
+        # #
+        # # print("Started training KMeans...")
+        # # sse = []
+        # # for k in iters:
+        # #     sse.append(
+        # #         KMeans(n_clusters=k, init='k-means++', max_iter=100).fit(text).inertia_)
+        # #     print('Fit {} clusters'.format(k))
+        # #
+        # # f, ax = plt.subplots(1, 1)
+        # # ax.plot(iters, sse, marker='o')
+        # # ax.set_xlabel('Cluster Centers')
+        # # ax.set_xticks(iters)
+        # # ax.set_xticklabels(iters)
+        # # ax.set_ylabel('SSE')
+        # # ax.set_title('SSE by Cluster Center Plot')
+        # # plt.show()
 
-        clusters = KMeans(n_clusters=10, init='k-means++', max_iter=100).fit_predict(text)
-        # dump(clusters, "tfidf_clusters.mdl")
-        self.get_top_keywords(text, clusters, tfidf.get_feature_names(), 20)
+        clusters = KMeans(n_clusters=10, init='k-means++', max_iter=100)
+        clusters.fit(text)
+        clusters_predict = clusters.predict(text)
+        pickle.dump(clusters, open("tfidf_clusters.mdl", "wb"))
+
+        self.get_top_keywords(text, clusters_predict, tfidf.get_feature_names(), 20)
+
+    def get_text_prediction(self, reviews_lst):
+        with open('clusters_labels.json') as json_file:
+            data = json.load(json_file)
+
+        print("Load and create vectorizer")
+        loaded_vec = TfidfVectorizer(vocabulary=pickle.load(open("tfidf_vocabulary", 'rb')),
+            # max_df=0.95,
+            max_features=8000,
+            stop_words=self.domain_stopwords,
+            analyzer='word',
+            token_pattern='[a-zA-Z0-9]+',
+            preprocessor=self.preprocess_tfidf)
+        processed_reviews = self.review_Json['text'].compute().values.tolist()
+        loaded_vec.fit(processed_reviews)
+        text = loaded_vec.transform(reviews_lst)
+
+        loaded_kmeans = pickle.load(open("tfidf_clusters.mdl", "rb"))
+
+        cluster_predict = loaded_kmeans.predict(text)
+        df = pd.DataFrame(reviews_lst, columns=['review'])
+        df['cluster'] = cluster_predict
+        top_4_clusters = df.groupby('cluster').count().reset_index().sort_values('review', ascending=0)['cluster'].head(4).tolist()
+
+        cluster_labels = []
+        for cluster in top_4_clusters:
+            cluster_labels.append(data[str(cluster)])
+
+        return cluster_labels
+
 
 def makeMiniCorpusCopy():
     with open("C:\\Users\\User\\Desktop\\DATA_SET\\review_MinCorpus_500K.json", "w+", encoding="utf8") as miniFile:
@@ -302,11 +318,12 @@ if __name__ == '__main__':
      # test.buildModel()
     # makeMiniCorpusCopy()
 
-    # cwd = os.getcwd()
+    cwd = os.getcwd()
     # test = DataBase(cwd + "/miniCorpus/")
-    # test = DataBase(cwd + "/")
+    test = DataBase(cwd + "/")
     #test.getSimillar("Arizona Biltmore Golf Club",True,True,True)
     # test.build_doc2vec_model("doc2vec.mdl")
     # test.create_clusters_save_parquet(doc2vec_model_path="5k/doc2vec.mdl", kmeans_path='5k/kmeans.mdl')
     # test.explore_data()
-    # test.test()
+    test.create_clusters()
+    print(test.get_text_prediction(["pizza pizza", "bacon bacon bacon bacon breakfast breakfast breakfast breakfast"]))
