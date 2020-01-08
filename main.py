@@ -24,7 +24,7 @@ class DataBase:
 
     def __init__(self,path):
         self.review_Json = db.read_text(path + "/selected_entries_reviews_30k.json").map(json.loads).to_dataframe()
-        # self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
+        self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
         # self.checkin_Json = db.read_text(pathToDataSet+"\\checkin.json").map(json.loads).to_dataframe()
         # self.photo_Json = db.read_text(pathToDataSet+"\\photo.json").map(json.loads).to_dataframe()
         # self.tip_Json = db.read_text(pathToDataSet+"\\tip.json").map(json.loads).to_dataframe()
@@ -78,7 +78,7 @@ class DataBase:
                 # print(round(sum(maxAns) / len(maxAns),3) )
                 # print(bussinessName['name'])
                 # print("----------------")
-        print(namesAns)
+        # print(namesAns)
         return namesAns
 
     def similarity_By_GPS(self, bussinessName, maxRadius):
@@ -92,7 +92,7 @@ class DataBase:
             if bussinessNameI['latitude'] is not None and bussinessNameI[
                 'longitude'] is not None and calc < maxRadius and calc != 0:
                 namesAns.append([bussinessNameI['name'], 1 - (calc / maxRadius)])
-        print(sorted(namesAns, key=lambda x: x[1], reverse=True))
+        # print(sorted(namesAns, key=lambda x: x[1], reverse=True))
         return sorted(namesAns, key=lambda x: x[1], reverse=True)
 
     '''

@@ -1,14 +1,2 @@
-from tkinter import *
-
-
-
-window = Tk()
-
-
-
-
-scale = Scale(window,  orient=HORIZONTAL)
-
-
-scale.pack()
-window.mainloop()
+for i in range(3):
+    print (i)
