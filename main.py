@@ -54,16 +54,17 @@ class DataBase:
             lemmatized_stopwords.append(lemmatized_token)
         self.domain_stopwords = gensim.parsing.preprocessing.STOPWORDS.union(set(lemmatized_stopwords))
 
-
-    def similarity_By_Categories(self,bussinessName,minPercent):
-        bussinessCategories =self.business_Json[self.business_Json['name']==bussinessName]['categories'].compute().tolist()[0].replace(', ',',').split(",")
+    def similarity_By_Categories(self, bussinessName, minPercent):
+        bussinessCategories = \
+        self.business_Json[self.business_Json['name'] == bussinessName]['categories'].compute().tolist()[0].replace(
+            ', ', ',').split(",")
         namesAns = []
         # print(bussinessCategories)
         # print("#############")
         for index, bussinessNameI in self.business_Json.iterrows():
             if bussinessNameI['categories'] is not None:
-                categoryAnswers=[]
-                maxAns =[]
+                categoryAnswers = []
+                maxAns = []
                 for bi in bussinessCategories:
                     # print(bussinessName['categories'].split(","))
                     for category in bussinessNameI['categories'].split(","):
@@ -72,30 +73,35 @@ class DataBase:
                     maxAns.append(max(categoryAnswers))
                     categoryAnswers.clear()
                 # print(maxAns)
-                if(round(sum(maxAns) / len(maxAns),3) >= minPercent and bussinessNameI['name'] != bussinessName):
-                    namesAns.append(bussinessNameI['name'])
+                if (round(sum(maxAns) / len(maxAns), 3) >= minPercent and bussinessNameI['name'] != bussinessName):
+                    namesAns.append([bussinessNameI['name'], round(sum(maxAns) / len(maxAns), 3) / 100])
                 # print(round(sum(maxAns) / len(maxAns),3) )
                 # print(bussinessName['name'])
                 # print("----------------")
+        print(namesAns)
         return namesAns
 
-    def similarity_By_GPS(self,bussinessName,maxRadius):
+    def similarity_By_GPS(self, bussinessName, maxRadius):
         import geopy.distance
-        coordsX = self.business_Json[self.business_Json['name']==bussinessName]['latitude'].compute().tolist()[0]
-        coordsY = self.business_Json[self.business_Json['name']==bussinessName]['longitude'].compute().tolist()[0]
+        coordsX = self.business_Json[self.business_Json['name'] == bussinessName]['latitude'].compute().tolist()[0]
+        coordsY = self.business_Json[self.business_Json['name'] == bussinessName]['longitude'].compute().tolist()[0]
         namesAns = []
         for index, bussinessNameI in self.business_Json.iterrows():
-            calc = geopy.distance.distance((coordsX,coordsY),(bussinessNameI['latitude'],bussinessNameI['longitude'])).km
-            if bussinessNameI['latitude'] is not None and bussinessNameI['longitude'] is not None and calc < maxRadius and calc != 0 :
-                namesAns.append(bussinessNameI['name'])
-        return namesAns
+            calc = geopy.distance.distance((coordsX, coordsY),
+                                           (bussinessNameI['latitude'], bussinessNameI['longitude'])).km
+            if bussinessNameI['latitude'] is not None and bussinessNameI[
+                'longitude'] is not None and calc < maxRadius and calc != 0:
+                namesAns.append([bussinessNameI['name'], 1 - (calc / maxRadius)])
+        print(sorted(namesAns, key=lambda x: x[1], reverse=True))
+        return sorted(namesAns, key=lambda x: x[1], reverse=True)
 
     '''
     @:return: Model
     '''
+
     def buildModel(self):
-        cleanReviews=[]
-        ratesBinary=[]
+        cleanReviews = []
+        ratesBinary = []
         for index, review in self.review_Json.iterrows():
             cleanReviews.append(self.REPLACE_NO_SPACE.sub("", review['text'].lower()))
             if int(review['stars']) < 4:
@@ -109,46 +115,47 @@ class DataBase:
         X = cv.transform(cleanReviews)
         print("done CV, now build")
 
-# FIND BEST C parameter
-#         X_train, X_val, y_train, y_val = train_test_split(X, ratesBinary, train_size=0.75)
-#         for c in [0.01, 0.05, 0.25, 0.5, 1]:
-#             lr = LogisticRegression(C=c)
-#             lr.fit(X_train, y_train)
-#             print("Accuracy for C=%s: %s"
-#                   % (c, accuracy_score(y_val, lr.predict(X_val))))
+    # FIND BEST C parameter
+    #         X_train, X_val, y_train, y_val = train_test_split(X, ratesBinary, train_size=0.75)
+    #         for c in [0.01, 0.05, 0.25, 0.5, 1]:
+    #             lr = LogisticRegression(C=c)
+    #             lr.fit(X_train, y_train)
+    #             print("Accuracy for C=%s: %s"
+    #                   % (c, accuracy_score(y_val, lr.predict(X_val))))
 
-# #SAVE THE MODEL & CV
-#         pickle.dump(cv, open("cv", "wb"))
-#         final_model = LogisticRegression(C=0.25)
-#         final_model.fit(X, ratesBinary)
-#         object = final_model
-#         filehandler = open("sentiment_analysis_model", 'wb')
-#         pickle.dump(object, filehandler)
-#         print("done save. now words!")
-# #GIVES THE BEST GOOD/BAD WORDS:
-#         feature_to_coef = {
-#             word: coef for word, coef in zip(
-#                 cv.get_feature_names(), final_model.coef_[0]
-#             )
-#         }
-#         for best_positive in sorted(
-#                 feature_to_coef.items(),
-#                 key=lambda x: x[1],
-#                 reverse=True)[:5]:
-#             print(best_positive)
-#         print("---------")
-#
-#         for best_negative in sorted(
-#                 feature_to_coef.items(),
-#                 key=lambda x: x[1])[:5]:
-#             print(best_negative)
+    # #SAVE THE MODEL & CV
+    #         pickle.dump(cv, open("cv", "wb"))
+    #         final_model = LogisticRegression(C=0.25)
+    #         final_model.fit(X, ratesBinary)
+    #         object = final_model
+    #         filehandler = open("sentiment_analysis_model", 'wb')
+    #         pickle.dump(object, filehandler)
+    #         print("done save. now words!")
+    # #GIVES THE BEST GOOD/BAD WORDS:
+    #         feature_to_coef = {
+    #             word: coef for word, coef in zip(
+    #                 cv.get_feature_names(), final_model.coef_[0]
+    #             )
+    #         }
+    #         for best_positive in sorted(
+    #                 feature_to_coef.items(),
+    #                 key=lambda x: x[1],
+    #                 reverse=True)[:5]:
+    #             print(best_positive)
+    #         print("---------")
+    #
+    #         for best_negative in sorted(
+    #                 feature_to_coef.items(),
+    #                 key=lambda x: x[1])[:5]:
+    #             print(best_negative)
 
     '''
     @:param: List of reviews
     @:return: List of occurrences (1=positive, -1 negative) -- BY MODEL
     '''
-    def predictReviewsList(self,reviewsList):
-        ans=[]
+
+    def predictReviewsList(self, reviewsList):
+        ans = []
         vectorizer = pickle.load(open("cv", "rb"))
         model = pickle.load(open("sentiment_analysis_model", "rb"))
         for comment in reviewsList:
@@ -159,9 +166,11 @@ class DataBase:
     @:param: bussienss name to search in DataSET
     @:return: List of occurrences (1=positive, -1 negative) -- BY RATES in dataset
     '''
-    def useRateToPredict(self,bussinessID):
-        ans=[]
-        bussinessRates = self.review_Json[self.review_Json['business_id'] == bussinessID]['stars'].compute().tolist()
+
+    def useRateToPredict(self, bussinessID):
+        ans = []
+        bussinessRates = self.review_Json[self.review_Json['business_id'] == bussinessID][
+            'stars'].compute().tolist()
         for rate in bussinessRates:
             if rate > 3:
                 ans.append(1)
@@ -173,31 +182,39 @@ class DataBase:
     @:param: bussienss name to search in DataSET
     @:return: List [list of occurrences +-, tuples of precentages of negative,positive]
     '''
-    def businessSentimentAnalysis_FromDATASET(self,bussinessName):
-        bussinessID = self.business_Json[self.business_Json['name']==bussinessName]['business_id'].compute().tolist()[0]
+
+    def businessSentimentAnalysis_FromDATASET(self, bussinessName):
+        bussinessID = \
+        self.business_Json[self.business_Json['name'] == bussinessName]['business_id'].compute().tolist()[0]
         reviewsList = self.review_Json[self.review_Json['business_id'] == bussinessID]['text'].compute().tolist()
         print("\n------------------------\n".join(reviewsList))
         ans = self.useRateToPredict(bussinessID)
         print(ans)
-        #return list: [0]= shows, [1]=precentages
+        # return list: [0]= shows, [1]=precentages
         counter = Counter(ans)
-        print([(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter])
-        return ([self.useRateToPredict(bussinessID),[(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter],reviewsList])
+        print([(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter])
+        return (
+        [self.useRateToPredict(bussinessID), [(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter],
+         reviewsList])
 
     '''
     @:param: csv path for reviewsFile
     @:return: List [list of occurrences +-, tuples of precentages of negative,positive]
     '''
-    def businessSentimentAnalysis_FromCSV(self,csvPath):
+
+    def businessSentimentAnalysis_FromCSV(self, csvPath):
         with open(csvPath, "rt") as file:
             reader = csv.reader(file, delimiter=',')
             reviewsList = list(reader)
         print(reviewsList[0])
         ans = self.predictReviewsList(reviewsList[0])
+        # print(ans)
+        # return list: [0]= shows, [1]=precentages
         counter = Counter(ans)
-        print([(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter])
-        return ([self.predictReviewsList(reviewsList[0]),[(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter],reviewsList])
-
+        print([(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter])
+        return (
+        [self.predictReviewsList(reviewsList[0]), [(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter],
+         reviewsList])
 
     def preprocess_reviews_text(self, text):
         result = []
