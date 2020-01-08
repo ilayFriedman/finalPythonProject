@@ -99,6 +99,7 @@ class Toplevel1:
         self.CategorySim_CheckBVar.set(0)
         self.locationSim_CheckBVar.set(0)
         self.canvas =None
+        self.threadContinue = None
 
         print("......CREATING ALL THE LABELS......")
         self.queryFrame = ttk.Frame(top)
@@ -368,7 +369,7 @@ class Toplevel1:
         self.SimilarityRestaurants_Frame.configure(borderwidth="2")
         self.SimilarityRestaurants_Frame.configure(relief='groove')
         self.SimilarityRestaurants_Frame.configure(width=425)
-        self.SimilarityRestaurants_Frame.configure(cursor="fleur")
+        # self.SimilarityRestaurants_Frame.configure(cursor="fleur")
 
         self.SimilarityRestaurants_Label = ttk.Label(self.SimilarityRestaurants_Frame)
         self.SimilarityRestaurants_Label.place(relx=0.0, rely=-0.014, height=19
@@ -385,6 +386,10 @@ class Toplevel1:
         self.CategorySim_CheckB.configure(text='''Category similarity''')
         self.CategorySim_CheckB.configure(variable=self.CategorySim_CheckBVar)
         self.CategorySim_CheckB.configure(command=self.show_CategorySim)
+        self.CategorySim_CheckB.configure(state='disabled')
+        self.CategorySim_CheckB.configure(takefocus="")
+
+
         #
         # self.CategorySim_RadioB = ttk.Radiobutton(self.SimilarityRestaurants_Frame)
         # self.CategorySim_RadioB.place(relx=0.047, rely=0.087, relwidth=0.287
@@ -408,6 +413,7 @@ class Toplevel1:
         self.locationSim_CheckB.configure(text='''Location similarity''')
         self.locationSim_CheckB.configure(variable=self.locationSim_CheckBVar)
         self.locationSim_CheckB.configure(command=self.show_GPSSim)
+        self.locationSim_CheckB.configure(state='disabled')
 
 
         self.categoriesInput_textEntry = ttk.Entry(self.SimilarityRestaurants_Frame)
@@ -417,6 +423,7 @@ class Toplevel1:
         self.categoriesInput_textEntry.configure(takefocus="")
         self.categoriesInput_textEntry.configure(cursor="ibeam")
         self.categoriesInput_textEntry.configure(state='disabled')
+        self.categoriesInput_textEntry.bind("<KeyRelease>",self.checkAbilityGoButton)
 
         self.minPercent_Label = ttk.Label(self.SimilarityRestaurants_Frame)
         self.minPercent_Label.place(relx=0.506, rely=0.087, height=19, width=140)
@@ -434,6 +441,7 @@ class Toplevel1:
         self.locationInput_textEntry.configure(takefocus="")
         self.locationInput_textEntry.configure(cursor="ibeam")
         self.locationInput_textEntry.configure(state='disabled')
+        self.locationInput_textEntry.bind("<KeyRelease>",self.checkAbilityGoButton)
 
         self.maxRadius_Label = ttk.Label(self.SimilarityRestaurants_Frame)
         self.maxRadius_Label.place(relx=0.506, rely=0.174, height=19, width=93)
@@ -444,7 +452,7 @@ class Toplevel1:
         self.maxRadius_Label.configure(text='''Max Radius (km)''')
 
         self.showMe_Label = ttk.Label(self.SimilarityRestaurants_Frame)
-        self.showMe_Label.place(relx=0.047, rely=0.261, height=19, width=55)
+        self.showMe_Label.place(relx=0.87, rely=0.058, height=19, width=55)
         self.showMe_Label.configure(background="#d9d9d9")
         self.showMe_Label.configure(foreground="#000000")
         self.showMe_Label.configure(font="TkDefaultFont")
@@ -453,14 +461,15 @@ class Toplevel1:
         self.showMe_Label.configure(width=55)
 
         self.numResult_textInput = ttk.Entry(self.SimilarityRestaurants_Frame)
-        self.numResult_textInput.place(relx=0.188, rely=0.261, relheight=0.061
-                , relwidth=0.108)
+        self.numResult_textInput.place(relx = 0.859, rely = 0.13, relheight = 0.061, relwidth = 0.108)
         self.numResult_textInput.configure(width=46)
         self.numResult_textInput.configure(takefocus="")
         self.numResult_textInput.configure(cursor="ibeam")
+        self.numResult_textInput.bind("<KeyRelease>",self.checkAbilityGoButton)
+        self.numResult_textInput.configure(state='disabled')
 
         self.Results_Label = ttk.Label(self.SimilarityRestaurants_Frame)
-        self.Results_Label.place(relx=0.318, rely=0.275, height=19, width=41)
+        self.Results_Label.place(relx=0.88, rely=0.200, height=19, width=41)
         self.Results_Label.configure(background="#d9d9d9")
         self.Results_Label.configure(foreground="#000000")
         self.Results_Label.configure(font="TkDefaultFont")
@@ -472,6 +481,8 @@ class Toplevel1:
         self.Go_Button.configure(takefocus="")
         self.Go_Button.configure(text='''Go!''')
         self.Go_Button.configure(width=176)
+        self.Go_Button.configure(command=self.onClick_Go)
+        self.Go_Button.configure(state='disabled')
 
         self.results_click_Label = ttk.Label(self.SimilarityRestaurants_Frame)
         self.results_click_Label.place(relx=0.024, rely=0.435, height=19
@@ -482,21 +493,59 @@ class Toplevel1:
         self.results_click_Label.configure(relief='flat')
         self.results_click_Label.configure(text='''Results: (click on each name to see recomend!)''')
 
+
+        self.ScaleA = ttk.Scale(self.SimilarityRestaurants_Frame)
+        self.ScaleA.place(relx=0.071, rely=0.319, relwidth=0.376, relheight=0.0, height = 26, bordermode = 'ignore')
+        self.ScaleA.configure(length="160")
+        self.ScaleA.configure(takefocus="")
+        self.ScaleA.set(50)
+
+        self.weightA_Label = ttk.Label(self.SimilarityRestaurants_Frame)
+        self.weightA_Label.place(relx=0.188, rely=0.261, height=19, width=40)
+        self.weightA_Label.configure(background="#d9d9d9")
+        self.weightA_Label.configure(foreground="#000000")
+        self.weightA_Label.configure(font="TkDefaultFont")
+        self.weightA_Label.configure(relief='flat')
+        self.weightA_Label.configure(text='''weight''')
+
+        self.locA_Label = ttk.Label(self.SimilarityRestaurants_Frame)
+        self.locA_Label.place(relx=0.4, rely=0.362, height=19, width=60)
+        self.locA_Label.configure(background="#d9d9d9")
+        self.locA_Label.configure(foreground="#000000")
+        self.locA_Label.configure(font="TkDefaultFont")
+        self.locA_Label.configure(relief='flat')
+        self.locA_Label.configure(text='''Locations''')
+
+        self.catgoriesA_Label = ttk.Label(self.SimilarityRestaurants_Frame)
+        self.catgoriesA_Label.place(relx=0.024, rely=0.377, height=19, width=60)
+        self.catgoriesA_Label.configure(background="#d9d9d9")
+        self.catgoriesA_Label.configure(foreground="#000000")
+        self.catgoriesA_Label.configure(font="TkDefaultFont")
+        self.catgoriesA_Label.configure(relief='flat')
+        self.catgoriesA_Label.configure(text='''Categories''')
+
         self.resultsTreeSim_ScrollTree = ScrolledTreeView(self.SimilarityRestaurants_Frame)
         self.resultsTreeSim_ScrollTree.place(relx=0.024, rely=0.493, relheight=0.397, relwidth=0.941)
-        self.resultsTreeSim_ScrollTree.configure(columns="Col1")
+        self.resultsTreeSim_ScrollTree.configure(columns=('Col1', 'Col2'))
         self.resultsTreeSim_ScrollTree.heading("#0",text="Tree")
         self.resultsTreeSim_ScrollTree.heading("#0",anchor="center")
         self.resultsTreeSim_ScrollTree.column("#0",width="190")
         self.resultsTreeSim_ScrollTree.column("#0",minwidth="20")
         self.resultsTreeSim_ScrollTree.column("#0",stretch="1")
         self.resultsTreeSim_ScrollTree.column("#0",anchor="w")
-        self.resultsTreeSim_ScrollTree.heading("Col1",text="Col1")
+        self.resultsTreeSim_ScrollTree.heading("Col1",text="Rate")
         self.resultsTreeSim_ScrollTree.heading("Col1",anchor="center")
         self.resultsTreeSim_ScrollTree.column("Col1",width="191")
         self.resultsTreeSim_ScrollTree.column("Col1",minwidth="20")
         self.resultsTreeSim_ScrollTree.column("Col1",stretch="1")
         self.resultsTreeSim_ScrollTree.column("Col1",anchor="w")
+        self.resultsTreeSim_ScrollTree.heading("Col2",text="Bussiness Name")
+        self.resultsTreeSim_ScrollTree.heading("Col2",anchor="center")
+        self.resultsTreeSim_ScrollTree.column("Col2",width="191")
+        self.resultsTreeSim_ScrollTree.column("Col2",minwidth="20")
+        self.resultsTreeSim_ScrollTree.column("Col2",stretch="1")
+        self.resultsTreeSim_ScrollTree.column("Col2",anchor="w")
+        self.resultsTreeSim_ScrollTree['show'] = 'headings'
 
         self.SaveRes_Button = ttk.Button(self.SimilarityRestaurants_Frame)
         self.SaveRes_Button.place(relx=0.024, rely=0.899, height=25, width=86)
@@ -514,6 +563,7 @@ class Toplevel1:
 
 
     def onClick_Search(self):
+
         if(len(self.query_textEntry.get()) == 0):
             messagebox.showerror('oops!','You have to insert some bussiness name to start!')
 
@@ -526,6 +576,12 @@ class Toplevel1:
                 self.show_ReviewsView_Frame_RadioB(True)
                 self.fillInfo(self.query_textEntry.get())
                 self.show_DetailsInfo_Frame(True)
+
+                #SIMILARITY FRAME
+                self.CategorySim_CheckB.configure(state='normal')
+                self.locationSim_CheckB.configure(state='normal')
+
+
 
 
     def onClick_import(self):
@@ -557,7 +613,6 @@ class Toplevel1:
                 print("im in the if!! ")
                 self.putPieChart(self.reviewsAnsList[0])
 
-
         # def putPieChart(listPrecentage):
         #     print("yesss")
         #     fig = matplotlib.figure.Figure()
@@ -580,6 +635,29 @@ class Toplevel1:
         #
         # thread = threading.Thread(target=run)
         # thread.start()
+
+    def onClick_Go(self):
+        self.scalePercent = self.ScaleA.get()/100
+        if self.CategorySim_CheckBVar.get() == 1:
+             self.catAnsList = self.db.similarity_By_Categories(self.query_textEntry.get(),int(self.categoriesInput_textEntry.get()))
+        if self.locationSim_CheckBVar.get() == 1:
+            self.locAnsList = self.db.similarity_By_GPS(self.query_textEntry.get(),int(self.locationInput_textEntry.get()))
+
+
+                # self.CategorySim_CheckB.configure(state='normal')
+                # self.categoriesInput_textEntry.configure(state='normal')
+                #
+                # self.locationSim_CheckB.configure(state='normal')
+                # self.locationInput_textEntry.configure(state='normal')
+
+            # self.insertList = []
+            # if self.locAnsList != None:
+            #     if self.catAnsList != None:
+            #         self.insertList =
+        # self.resultsTreeSim_ScrollTree.insert("", 'end', text="L10", values=("Big10", "Best"))
+
+        self.Go_Button.configure(state='normal')
+        print("blab")
 
 
     def show_Search_Frame(self, enable):
@@ -638,19 +716,27 @@ class Toplevel1:
     def show_CategorySim(self):
         if self.CategorySim_CheckBVar.get() == 1:
             self.categoriesInput_textEntry.configure(state='normal')
+            self.numResult_textInput.configure(state='normal')
         else:
             self.categoriesInput_textEntry.delete(0, 'end')
             self.categoriesInput_textEntry.configure(state='disabled')
+            if(self.locationSim_CheckBVar.get() == 0):
+                self.numResult_textInput.delete(0,'end')
+                self.numResult_textInput.configure(state='disabled')
+        self.checkAbilityGoButton(None)
 
 
     def show_GPSSim(self):
         if self.locationSim_CheckBVar.get() == 1:
             self.locationInput_textEntry.configure(state='normal')
+            self.numResult_textInput.configure(state='normal')
         else:
             self.locationInput_textEntry.delete(0, 'end')
             self.locationInput_textEntry.configure(state='disabled')
-
-
+            if(self.CategorySim_CheckBVar.get() == 0):
+                self.numResult_textInput.delete(0,'end')
+                self.numResult_textInput.configure(state='disabled')
+        self.checkAbilityGoButton(None)
 
     def fillInfo(self,bussinessName):
         if (self.db.business_Json[self.db.business_Json['name'] == bussinessName]['address'] is not None):
@@ -700,7 +786,35 @@ class Toplevel1:
             self.show_ReviewsView_Frame(False)
             self.AnalysisReviews_Button.configure(state='normal')
 
+    def checkAbilityGoButton(self,event):
+        catCheck = False
+        locCheck = False
+        resutlsCount = False
 
+        if self.CategorySim_CheckBVar.get() == 1:
+            if self.categoriesInput_textEntry.get().isdigit(): catCheck = True
+        else:
+            catCheck = True
+
+        if self.locationSim_CheckBVar.get() == 1:
+            if self.locationInput_textEntry.get().isdigit(): locCheck = True
+        else:
+            locCheck = True
+
+        if self.numResult_textInput.get().isdigit(): resutlsCount = True
+
+
+        if(self.locationSim_CheckBVar.get() == 0 and self.CategorySim_CheckBVar.get() == 0):
+            catCheck = False
+            locCheck = False
+
+        print("catCheck"+str(catCheck))
+        print("locCheck"+str(locCheck))
+        print("resutlsCount"+str(resutlsCount))
+        if catCheck == True and locCheck == True and resutlsCount == True:
+                self.Go_Button.configure(state='normal')
+        else:
+            self.Go_Button.configure(state='disabled')
 
     def resetAll(self):
         self.reviewPath_textEntry.delete(0, 'end')
@@ -710,6 +824,14 @@ class Toplevel1:
         self.show_Search_Frame(True)
         self.radioButtonVar_CSV.set(0)
         self.radioButtonVar_Dataset.set(0)
+        self.numResult_textInput.delete(0, 'end')
+        self.categoriesInput_textEntry.delete(0, 'end')
+        self.locationInput_textEntry.delete(0, 'end')
+        self.locationSim_CheckBVar.set(0)
+        self.CategorySim_CheckBVar.set(0)
+        self.CategorySim_CheckB.configure(state='disabled')
+        self.locationSim_CheckB.configure(state='disabled')
+        self.numResult_textInput.configure(state='disabled')
 
 
 
