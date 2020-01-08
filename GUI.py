@@ -6,6 +6,7 @@
 #    Jan 06, 2020 03:50:29 PM +0200  platform: Windows NT
 
 import sys
+import threading
 from collections import Counter
 import main
 import matplotlib.figure
@@ -78,7 +79,7 @@ class Toplevel1:
         self.style.map('.',background=
             [('selected', _compcolor), ('active',_ana2color)])
 
-        top.geometry("939x634+376+101")
+        top.geometry("1442x870+250+35")
         top.title("Yelper")
         top.configure(background="#d9d9d9")
 
@@ -92,6 +93,11 @@ class Toplevel1:
         self.radioButtonVar_Dataset = tk.IntVar()
         self.radioButtonVar_CSV.set(0)
         self.radioButtonVar_Dataset.set(0)
+
+        self.CategorySim_CheckBVar = tk.IntVar()
+        self.locationSim_CheckBVar = tk.IntVar()
+        self.CategorySim_CheckBVar.set(0)
+        self.locationSim_CheckBVar.set(0)
         self.canvas =None
 
         print("......CREATING ALL THE LABELS......")
@@ -373,17 +379,36 @@ class Toplevel1:
         self.SimilarityRestaurants_Label.configure(relief='flat')
         self.SimilarityRestaurants_Label.configure(text='''Similarity Restaurants''')
 
-        self.CategorySim_RadioB = ttk.Radiobutton(self.SimilarityRestaurants_Frame)
-        self.CategorySim_RadioB.place(relx=0.047, rely=0.087, relwidth=0.287
-                , relheight=0.0, height=21)
-        self.CategorySim_RadioB.configure(takefocus="")
-        self.CategorySim_RadioB.configure(text='''Category similarity''')
+        # self.style.map('TCheckbutton', background=[('selected', _bgcolor), ('active', _ana2color)])
+        self.CategorySim_CheckB = ttk.Checkbutton(self.SimilarityRestaurants_Frame)
+        self.CategorySim_CheckB.place(relx=0.047, rely=0.087, relwidth=0.287, relheight=0.0, height=21)
+        self.CategorySim_CheckB.configure(text='''Category similarity''')
+        self.CategorySim_CheckB.configure(variable=self.CategorySim_CheckBVar)
+        self.CategorySim_CheckB.configure(command=self.show_CategorySim)
+        #
+        # self.CategorySim_RadioB = ttk.Radiobutton(self.SimilarityRestaurants_Frame)
+        # self.CategorySim_RadioB.place(relx=0.047, rely=0.087, relwidth=0.287
+        #         , relheight=0.0, height=21)
+        # self.CategorySim_RadioB.configure(takefocus="")
+        # self.CategorySim_RadioB.configure(text='''Category similarity''')
 
-        self.locationSim_RadioB = ttk.Radiobutton(self.SimilarityRestaurants_Frame)
-        self.locationSim_RadioB.place(relx=0.047, rely=0.174, relwidth=0.282
+
+        # self.locationSim_RadioB = ttk.Radiobutton(self.SimilarityRestaurants_Frame)
+        # self.locationSim_RadioB.place(relx=0.047, rely=0.174, relwidth=0.282
+        #         , relheight=0.0, height=21)
+        # self.locationSim_RadioB.configure(takefocus="")
+        # self.locationSim_RadioB.configure(text='''Location similarity''')
+
+
+        # self.style.map('TCheckbutton', background=[('selected', _bgcolor), ('active', _ana2color)])
+        self.locationSim_CheckB = ttk.Checkbutton(self.SimilarityRestaurants_Frame)
+        self.locationSim_CheckB.place(relx=0.047, rely=0.174, relwidth=0.282
                 , relheight=0.0, height=21)
-        self.locationSim_RadioB.configure(takefocus="")
-        self.locationSim_RadioB.configure(text='''Location similarity''')
+        self.locationSim_CheckB.configure(takefocus="")
+        self.locationSim_CheckB.configure(text='''Location similarity''')
+        self.locationSim_CheckB.configure(variable=self.locationSim_CheckBVar)
+        self.locationSim_CheckB.configure(command=self.show_GPSSim)
+
 
         self.categoriesInput_textEntry = ttk.Entry(self.SimilarityRestaurants_Frame)
         self.categoriesInput_textEntry.place(relx=0.353, rely=0.087
@@ -391,6 +416,7 @@ class Toplevel1:
         self.categoriesInput_textEntry.configure(width=56)
         self.categoriesInput_textEntry.configure(takefocus="")
         self.categoriesInput_textEntry.configure(cursor="ibeam")
+        self.categoriesInput_textEntry.configure(state='disabled')
 
         self.minPercent_Label = ttk.Label(self.SimilarityRestaurants_Frame)
         self.minPercent_Label.place(relx=0.506, rely=0.087, height=19, width=140)
@@ -407,6 +433,7 @@ class Toplevel1:
         self.locationInput_textEntry.configure(width=56)
         self.locationInput_textEntry.configure(takefocus="")
         self.locationInput_textEntry.configure(cursor="ibeam")
+        self.locationInput_textEntry.configure(state='disabled')
 
         self.maxRadius_Label = ttk.Label(self.SimilarityRestaurants_Frame)
         self.maxRadius_Label.place(relx=0.506, rely=0.174, height=19, width=93)
@@ -505,29 +532,63 @@ class Toplevel1:
         dirWind = tk.Tk()
         dirWind.withdraw()
         self.path = fd.askopenfilename(title = "Select CSV file",filetypes = (("CSV Files","*.csv"),))
-        self.AnalysisReviews_Button.configure(state='normal')
+        dirWind.destroy()
         if (len(str(self.reviewPath_textEntry.get())) != 0):
             self.reviewPath_textEntry.delete(0, 'end')
         self.reviewPath_textEntry.insert(0, str(self.path))
-        dirWind.destroy()
+        if (len(str(self.reviewPath_textEntry.get())) != 0):
+            self.AnalysisReviews_Button.configure(state='normal')
+
+
 
     def onClick_AnalysisReviews(self):
-        if(self.radioButtonVar_CSV.get() == 1):
-            self.db.businessSentimentAnalysis_FromCSV(self.path)
-        else:
-            self.reviewsAnsList = self.db.businessSentimentAnalysis_FromDATASET(self.query_textEntry.get())
+        # def run():
+            if (self.radioButtonVar_CSV.get() == 1):
+                self.reviewsAnsList = self.db.businessSentimentAnalysis_FromCSV(self.path)
+            else:
+                print("made it!")
+                self.reviewsAnsList = self.db.businessSentimentAnalysis_FromDATASET(self.query_textEntry.get())
+                print("after!!")
             self.numberReviews_Label.configure(text=len(self.reviewsAnsList[2]))
+            print("after1!!")
             self.show_ReviewsView_Frame(True)
-            if(len(self.reviewsAnsList[2]) > 0):
+            print("after2!!")
+            if (len(self.reviewsAnsList[2]) > 0):
+                print("im in the if!! ")
                 self.putPieChart(self.reviewsAnsList[0])
+
+
+        # def putPieChart(listPrecentage):
+        #     print("yesss")
+        #     fig = matplotlib.figure.Figure()
+        #     ax = fig.add_subplot(111)
+        #     rect = fig.patch
+        #     rect.set_facecolor('#d9d9d9')
+        #     print("yesss2")
+        #     counter = Counter(listPrecentage)
+        #     sizes = [counter[1], counter[-1]]
+        #     ax.pie(sizes, autopct='%1.1f%%', shadow=True)
+        #     print("yess3")
+        #     # , background = '#d9d9d9'
+        #     # circle = matplotlib.patches.Circle((0, 0), 0.7, color='white')
+        #     # ax.add_artist(circle)
+        #     canvas = FigureCanvasTkAgg(fig, master=self.chartFrame)
+        #     print("yess4")
+        #     canvas.get_tk_widget().pack()
+        #     print("yesss5")
+        #     canvas.draw()
+        #
+        # thread = threading.Thread(target=run)
+        # thread.start()
+
 
     def show_Search_Frame(self, enable):
         if enable == True:
             self.query_textEntry.configure(state='normal')
             self.Search_Button.configure(state='normal')
         else:
-            self.query_textEntry.configure(state='disable')
-            self.Search_Button.configure(state='disable')
+            self.query_textEntry.configure(state='disabled ')
+            self.Search_Button.configure(state='disabled')
 
     def show_DetailsInfo_Frame(self,enable):
         if enable==True:
@@ -557,8 +618,8 @@ class Toplevel1:
             self.fromDataSet_RadioB.configure(state='normal')
             self.importCSV_RadioB.configure(state='normal')
         else:
-            self.fromDataSet_RadioB.configure(state='disable')
-            self.importCSV_RadioB.configure(state='disable')
+            self.fromDataSet_RadioB.configure(state='disabled')
+            self.importCSV_RadioB.configure(state='disabled')
 
     def show_ReviewsView_Frame(self, enable):
         if enable == True:
@@ -567,12 +628,28 @@ class Toplevel1:
             self.LoadReview_Button.configure(state='normal')
             self.numberReviews_Label.configure(foreground="#000000")
         else:
-            self.AnalysisReviews_Button.configure(state='disable')
-            self.reviewPath_textEntry.configure(state='disable')
-            self.LoadReview_Button.configure(state='disable')
+            self.AnalysisReviews_Button.configure(state='disabled')
+            self.reviewPath_textEntry.configure(state='disabled')
+            self.LoadReview_Button.configure(state='disabled')
             if (self.canvas is not None):
                  self.canvas.get_tk_widget().pack_forget()
             self.numberReviews_Label.configure(foreground="#d9d9d9")
+
+    def show_CategorySim(self):
+        if self.CategorySim_CheckBVar.get() == 1:
+            self.categoriesInput_textEntry.configure(state='normal')
+        else:
+            self.categoriesInput_textEntry.delete(0, 'end')
+            self.categoriesInput_textEntry.configure(state='disabled')
+
+
+    def show_GPSSim(self):
+        if self.locationSim_CheckBVar.get() == 1:
+            self.locationInput_textEntry.configure(state='normal')
+        else:
+            self.locationInput_textEntry.delete(0, 'end')
+            self.locationInput_textEntry.configure(state='disabled')
+
 
 
     def fillInfo(self,bussinessName):
@@ -590,11 +667,14 @@ class Toplevel1:
             self.info_hours_Label.configure(text='\n'.join([str([key, value]) for key, value in self.db.business_Json[self.db.business_Json['name'] == bussinessName]['hours'].compute().tolist()[0].items()]))
 
     def putPieChart(self,listPrecentage):
-        fig = matplotlib.figure.Figure(figsize=(5, 5))
+        fig = matplotlib.figure.Figure()
         ax = fig.add_subplot(111)
+        rect = fig.patch
+        rect.set_facecolor('#d9d9d9')
         counter = Counter(listPrecentage)
         sizes = [counter[1], counter[-1]]
-        ax.pie(sizes,autopct='%1.1f%%',shadow=True, startangle=140)
+        ax.pie(sizes,autopct='%1.1f%%',shadow=True)
+        # , background = '#d9d9d9'
         # circle = matplotlib.patches.Circle((0, 0), 0.7, color='white')
         # ax.add_artist(circle)
         self.canvas = FigureCanvasTkAgg(fig, master=self.chartFrame)
@@ -611,7 +691,7 @@ class Toplevel1:
             self.reviewPath_textEntry.configure(state='normal')
 
             if (len(str(self.reviewPath_textEntry.get())) == 0):
-                self.AnalysisReviews_Button.configure(state='disable')
+                self.AnalysisReviews_Button.configure(state='disabled')
         else:
             if(self.radioButtonVar_CSV.get() == 1):
                 self.radioButtonVar_CSV.set(0)
@@ -623,12 +703,14 @@ class Toplevel1:
 
 
     def resetAll(self):
+        self.reviewPath_textEntry.delete(0, 'end')
         self.show_ReviewsView_Frame(False)
         self.show_ReviewsView_Frame_RadioB(False)
         self.show_DetailsInfo_Frame(False)
         self.show_Search_Frame(True)
         self.radioButtonVar_CSV.set(0)
         self.radioButtonVar_Dataset.set(0)
+
 
 
     # def searchClick(self):

@@ -188,7 +188,7 @@ class DataBase:
     @:return: List [list of occurrences +-, tuples of precentages of negative,positive]
     '''
     def businessSentimentAnalysis_FromCSV(self,csvPath):
-        with open(csvPath+'.csv', "rt") as file:
+        with open(csvPath, "rt") as file:
             reader = csv.reader(file, delimiter=',')
             reviewsList = list(reader)
         print(reviewsList[0])
@@ -197,7 +197,7 @@ class DataBase:
         #return list: [0]= shows, [1]=precentages
         counter = Counter(ans)
         print([(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter])
-        return ([self.predictReviewsList(reviewsList[0]),[(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter]])
+        return ([self.predictReviewsList(reviewsList[0]),[(i, round(counter[i] / len(ans) * 100.0,2)) for i in counter],reviewsList])
 
 
     def preprocess_reviews_text(self, text):
