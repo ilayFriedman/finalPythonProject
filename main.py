@@ -23,7 +23,7 @@ import os
 class DataBase:
 
     def __init__(self,path):
-        self.review_Json = db.read_text(path + "/selected_entries_reviews_30k.json").map(json.loads).to_dataframe()
+        self.review_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\review_MinCorpus.json").map(json.loads).to_dataframe()
         self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
         # self.checkin_Json = db.read_text(pathToDataSet+"\\checkin.json").map(json.loads).to_dataframe()
         # self.photo_Json = db.read_text(pathToDataSet+"\\photo.json").map(json.loads).to_dataframe()

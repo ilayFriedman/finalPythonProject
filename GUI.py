@@ -610,7 +610,7 @@ class Toplevel1:
             if self.radioButtonVar_Dataset.get() == 1:
                 self.LoadReview_Button.configure(state='disabled')
                 self.reviewPath_textEntry.configure(state='disabled')
-            print(self.db.get_text_prediction(self.reviewsAnsList[1]))
+            print(self.db.get_text_prediction(self.reviewsAnsList[2]))
 
     def onClick_Go(self):
         self.catAnsList = None
