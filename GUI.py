@@ -114,7 +114,7 @@ class Toplevel1:
         self.query_textEntry.place(relx=0.05, rely=0.364, relheight=0.382, relwidth=0.548)
         self.query_textEntry.configure(width=326)
         self.query_textEntry.configure(takefocus="")
-        self.query_textEntry.configure(cursor="ibeam")
+        # self.query_textEntry.configure(cursor="ibeam")
 
         self.enterResturant_Label = ttk.Label(self.queryFrame)
         self.enterResturant_Label.place(relx=0.0, rely=-0.091, height=19, width=122)
@@ -275,7 +275,7 @@ class Toplevel1:
         self.reviewPath_textEntry.place(relx=0.043, rely=0.145, relheight=0.061, relwidth=0.357)
         self.reviewPath_textEntry.configure(width=166)
         self.reviewPath_textEntry.configure(takefocus="")
-        self.reviewPath_textEntry.configure(cursor="ibeam")
+        # self.reviewPath_textEntry.configure(cursor="ibeam")
         self.reviewPath_textEntry.configure(state='disabled')
 
         self.AnalysisReviews_Button = ttk.Button(self.Reviewsview_Frame)
@@ -421,7 +421,7 @@ class Toplevel1:
                 , relheight=0.061, relwidth=0.132)
         self.categoriesInput_textEntry.configure(width=56)
         self.categoriesInput_textEntry.configure(takefocus="")
-        self.categoriesInput_textEntry.configure(cursor="ibeam")
+        # self.categoriesInput_textEntry.configure(cursor="ibeam")
         self.categoriesInput_textEntry.configure(state='disabled')
         self.categoriesInput_textEntry.bind("<KeyRelease>",self.checkAbilityGoButton)
 
@@ -439,7 +439,7 @@ class Toplevel1:
                 , relheight=0.061, relwidth=0.132)
         self.locationInput_textEntry.configure(width=56)
         self.locationInput_textEntry.configure(takefocus="")
-        self.locationInput_textEntry.configure(cursor="ibeam")
+        # self.locationInput_textEntry.configure(cursor="ibeam")
         self.locationInput_textEntry.configure(state='disabled')
         self.locationInput_textEntry.bind("<KeyRelease>",self.checkAbilityGoButton)
 
@@ -464,7 +464,7 @@ class Toplevel1:
         self.numResult_textInput.place(relx = 0.859, rely = 0.13, relheight = 0.061, relwidth = 0.108)
         self.numResult_textInput.configure(width=46)
         self.numResult_textInput.configure(takefocus="")
-        self.numResult_textInput.configure(cursor="ibeam")
+        # self.numResult_textInput.configure(cursor="ibeam")
         self.numResult_textInput.bind("<KeyRelease>",self.checkAbilityGoButton)
         self.numResult_textInput.configure(state='disabled')
 
@@ -555,7 +555,7 @@ class Toplevel1:
 
         print("......COMPILING DATA, ALMOST......")
         try:
-            self.db = main.DataBase("C:\\Users\\User\\Desktop\\DATA_SET")
+            self.db = main.DataBase("/miniCorpus")
             print("......AFTER CREATION......")
             self.show_DetailsInfo_Frame(False)
         except:

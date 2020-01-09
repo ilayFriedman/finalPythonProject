@@ -23,8 +23,8 @@ import os
 class DataBase:
 
     def __init__(self,path):
-        self.review_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\review_MinCorpus.json").map(json.loads).to_dataframe()
-        self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
+        self.review_Json = db.read_text(path + "selected_entries_reviews_30k.json").map(json.loads).to_dataframe()
+        # self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
         # self.checkin_Json = db.read_text(pathToDataSet+"\\checkin.json").map(json.loads).to_dataframe()
         # self.photo_Json = db.read_text(pathToDataSet+"\\photo.json").map(json.loads).to_dataframe()
         # self.tip_Json = db.read_text(pathToDataSet+"\\tip.json").map(json.loads).to_dataframe()
@@ -257,7 +257,7 @@ class DataBase:
         print("Created vectorizer.")
         tfidf.fit(processed_reviews)
         print("Vectorizer fitted.")
-        pickle.dump(tfidf.vocabulary, open("tfidf_vocabulary", 'wb'))
+        pickle.dump(tfidf.vocabulary_, open("tfidf_vocabulary", 'wb'))
 
         text = tfidf.transform(processed_reviews)
         print("transformed reviews")
@@ -335,12 +335,12 @@ if __name__ == '__main__':
      # test.buildModel()
     # makeMiniCorpusCopy()
 
-    cwd = os.getcwd()
+    # cwd = os.getcwd()
     # test = DataBase(cwd + "/miniCorpus/")
-    test = DataBase(cwd + "/")
+    # test = DataBase(cwd + "/")
     #test.getSimillar("Arizona Biltmore Golf Club",True,True,True)
     # test.build_doc2vec_model("doc2vec.mdl")
     # test.create_clusters_save_parquet(doc2vec_model_path="5k/doc2vec.mdl", kmeans_path='5k/kmeans.mdl')
     # test.explore_data()
-    test.create_clusters()
-    print(test.get_text_prediction(["pizza pizza", "bacon bacon bacon bacon breakfast breakfast breakfast breakfast"]))
+    # test.create_clusters()
+    # print(test.get_text_prediction(["crab crab fish shrimp", "bar whiskey beer night shot"]))
