@@ -23,8 +23,8 @@ import os
 class DataBase:
 
     def __init__(self,path):
-        self.review_Json = db.read_text(path + "selected_entries_reviews_30k.json").map(json.loads).to_dataframe()
-        # self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
+        self.review_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\selected_entries_reviews_30k.json").map(json.loads).to_dataframe()
+        self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
         # self.checkin_Json = db.read_text(pathToDataSet+"\\checkin.json").map(json.loads).to_dataframe()
         # self.photo_Json = db.read_text(pathToDataSet+"\\photo.json").map(json.loads).to_dataframe()
         # self.tip_Json = db.read_text(pathToDataSet+"\\tip.json").map(json.loads).to_dataframe()
@@ -187,15 +187,13 @@ class DataBase:
         bussinessID = \
         self.business_Json[self.business_Json['name'] == bussinessName]['business_id'].compute().tolist()[0]
         reviewsList = self.review_Json[self.review_Json['business_id'] == bussinessID]['text'].compute().tolist()
-        print("\n------------------------\n".join(reviewsList))
+        # print("\n------------------------\n".join(reviewsList))
         ans = self.useRateToPredict(bussinessID)
-        print(ans)
+        # print(ans)
         # return list: [0]= shows, [1]=precentages
         counter = Counter(ans)
-        print([(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter])
-        return (
-        [self.useRateToPredict(bussinessID), [(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter],
-         reviewsList])
+        # print([(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter])
+        return ([self.useRateToPredict(bussinessID), [(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter],reviewsList])
 
     '''
     @:param: csv path for reviewsFile
@@ -206,15 +204,14 @@ class DataBase:
         with open(csvPath, "rt") as file:
             reader = csv.reader(file, delimiter=',')
             reviewsList = list(reader)
-        print(reviewsList[0])
+        # print(reviewsList[0])
         ans = self.predictReviewsList(reviewsList[0])
         # print(ans)
         # return list: [0]= shows, [1]=precentages
         counter = Counter(ans)
-        print([(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter])
-        return (
-        [self.predictReviewsList(reviewsList[0]), [(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter],
-         reviewsList])
+        # print([(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter])
+        print(reviewsList)
+        return ([self.predictReviewsList(reviewsList[0]), [(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter],reviewsList[0]])
 
     def preprocess_reviews_text(self, text):
         result = []
@@ -293,29 +290,28 @@ class DataBase:
 
         print("Load and create vectorizer")
         loaded_vec = TfidfVectorizer(vocabulary=pickle.load(open("tfidf_vocabulary", 'rb')),
-            # max_df=0.95,
-            max_features=8000,
-            stop_words=self.domain_stopwords,
-            analyzer='word',
-            token_pattern='[a-zA-Z0-9]+',
-            preprocessor=self.preprocess_tfidf)
-        processed_reviews = self.review_Json['text'].compute().values.tolist()
-        loaded_vec.fit(processed_reviews)
-        text = loaded_vec.transform(reviews_lst)
+                                     # max_df=0.95,
+                                     max_features=8000,
+                                     stop_words=self.domain_stopwords,
+                                     analyzer='word',
+                                     token_pattern='[a-zA-Z0-9]+',
+                                     preprocessor=self.preprocess_tfidf)
+
+        text = loaded_vec.fit_transform(reviews_lst)
 
         loaded_kmeans = pickle.load(open("tfidf_clusters.mdl", "rb"))
 
         cluster_predict = loaded_kmeans.predict(text)
         df = pd.DataFrame(reviews_lst, columns=['review'])
         df['cluster'] = cluster_predict
-        top_4_clusters = df.groupby('cluster').count().reset_index().sort_values('review', ascending=0)['cluster'].head(4).tolist()
+        top_4_clusters = df.groupby('cluster').count().reset_index().sort_values('review', ascending=0)['cluster'].head(
+            4).tolist()
 
         cluster_labels = []
         for cluster in top_4_clusters:
             cluster_labels.append(data[str(cluster)])
 
         return cluster_labels
-
 
 def makeMiniCorpusCopy():
     with open("C:\\Users\\User\\Desktop\\DATA_SET\\review_MinCorpus_500K.json", "w+", encoding="utf8") as miniFile:

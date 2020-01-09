@@ -8,6 +8,9 @@ import operator
 import sys
 import threading
 from collections import Counter
+
+from PIL import ImageTk
+
 import main
 import matplotlib.figure
 import matplotlib.patches
@@ -18,7 +21,7 @@ from functools import partial
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory, askopenfile
 from tkinter import filedialog as fd
-
+from tkinter import *
 from pandas._libs import json
 
 try:
@@ -34,11 +37,25 @@ except ImportError:
     py3 = True
 
 
+# class OtherFrame(tk.Toplevel):
+#     """"""
+#
+#     # ----------------------------------------------------------------------
+#     def __init__(self):
+#         """Constructor"""
+#         tk.Toplevel.__init__(self)
+#         self.geometry("400x300")
+#         self.title("otherFrame")
+
+
 
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = tk.Tk()
+    photo = PhotoImage(file="background5.png")
+    w = Label(root, image=photo)
+    w.pack()
     top = Toplevel1 (root)
     root.mainloop()
 
@@ -58,6 +75,9 @@ def destroy_Toplevel1():
 
 class Toplevel1:
     def __init__(self, top=None):
+        # self.root = top
+        # self.frame = tk.Frame(top)
+        # self.openFrame()
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -125,6 +145,7 @@ class Toplevel1:
         self.enterResturant_Label.configure(text='''Enter Resturant Name:''')
 
 
+
         self.Search_Button = ttk.Button(self.queryFrame)
         self.Search_Button.place(relx=0.605, rely=0.364, height=25, width=106)
         self.Search_Button.configure(takefocus="")
@@ -140,9 +161,9 @@ class Toplevel1:
         self.ResetAll_Button.configure(width=96)
         self.ResetAll_Button.configure(command=self.resetAll)
 
+
         self.YELPER = ttk.Label(top)
         self.YELPER.place(relx=0.011, rely=0.018, height=84, width=175)
-        self.YELPER.configure(background="#d9d9d9")
         self.YELPER.configure(foreground="#000000")
         self.YELPER.configure(font=font11)
         self.YELPER.configure(relief='flat')
@@ -546,12 +567,83 @@ class Toplevel1:
         self.resultsTreeSim_ScrollTree.column("Col2",stretch="1")
         self.resultsTreeSim_ScrollTree.column("Col2",anchor="w")
         self.resultsTreeSim_ScrollTree['show'] = 'headings'
+        self.resultsTreeSim_ScrollTree.bind("<Double-1>", self.recommedsPopUp)
 
-        self.SaveRes_Button = ttk.Button(self.SimilarityRestaurants_Frame)
-        self.SaveRes_Button.place(relx=0.024, rely=0.899, height=25, width=86)
-        self.SaveRes_Button.configure(takefocus="")
-        self.SaveRes_Button.configure(text='''Save results''')
-        self.SaveRes_Button.configure(width=86)
+        self.images = (
+
+            tk.PhotoImage("img_close", data='''R0lGODlhDAAMAIQUADIyMjc3Nzk5OT09PT
+                         8/P0JCQkVFRU1NTU5OTlFRUVZWVmBgYGF hYWlpaXt7e6CgoLm5ucLCwszMzNbW
+                         1v//////////////////////////////////// ///////////yH5BAEKAB8ALA
+                         AAAAAMAAwAAAUt4CeOZGmaA5mSyQCIwhCUSwEIxHHW+ fkxBgPiBDwshCWHQfc5
+                         KkoNUtRHpYYAADs= '''),
+
+            tk.PhotoImage("img_closeactive", data='''R0lGODlhDAAMAIQcALwuEtIzFL46
+                         INY0Fdk2FsQ8IdhAI9pAIttCJNlKLtpLL9pMMMNTP cVTPdpZQOBbQd60rN+1rf
+                         Czp+zLxPbMxPLX0vHY0/fY0/rm4vvx8Pvy8fzy8P//////// ///////yH5BAEK
+                         AB8ALAAAAAAMAAwAAAVHYLQQZEkukWKuxEgg1EPCcilx24NcHGYWFhx P0zANBE
+                         GOhhFYGSocTsax2imDOdNtiez9JszjpEg4EAaA5jlNUEASLFICEgIAOw== '''),
+
+            tk.PhotoImage("img_closepressed", data='''R0lGODlhDAAMAIQeAJ8nD64qELE
+                         rELMsEqIyG6cyG7U1HLY2HrY3HrhBKrlCK6pGM7lD LKtHM7pKNL5MNtiViNaon
+                         +GqoNSyq9WzrNyyqtuzq+O0que/t+bIwubJw+vJw+vTz+zT z////////yH5BAE
+                         KAB8ALAAAAAAMAAwAAAVJIMUMZEkylGKuwzgc0kPCcgl123NcHWYW Fs6Gp2mYB
+                         IRgR7MIrAwVDifjWO2WwZzpxkxyfKVCpImMGAeIgQDgVLMHikmCRUpMQgA7 ''')
+        )
+
+        self.style.element_create("close", "image", "img_close",
+                                  ("active", "pressed", "!disabled", "img_closepressed"),
+                                  ("active", "alternate", "!disabled",
+                                   "img_closeactive"), border=8, sticky='')
+
+        self.style.layout("ClosetabNotebook", [("ClosetabNotebook.client",
+                                                {"sticky": "nswe"})])
+        self.style.layout("ClosetabNotebook.Tab", [
+            ("ClosetabNotebook.tab",
+             {"sticky": "nswe",
+              "children": [
+                  ("ClosetabNotebook.padding", {
+                      "side": "top",
+                      "sticky": "nswe",
+                      "children": [
+                          ("ClosetabNotebook.focus", {
+                              "side": "top",
+                              "sticky": "nswe",
+                              "children": [
+                                  ("ClosetabNotebook.label", {"side":
+                                                                  "left", "sticky": ''}),
+                                  ("ClosetabNotebook.close", {"side":
+                                                                  "left", "sticky": ''}), ]})]})]})])
+        PNOTEBOOK = "ClosetabNotebook"
+        self.style.configure('TNotebook.Tab', background=_bgcolor)
+        self.style.configure('TNotebook.Tab', foreground=_fgcolor)
+        self.style.map('TNotebook.Tab', background=[('selected', _compcolor), ('active', _ana2color)])
+        self.Clustering_Notebook = ttk.Notebook(self.Reviewsview_Frame)
+        self.Clustering_Notebook.place(relx=0.022, rely=0.493, relheight=0.452, relwidth = 0.46)
+        self.Clustering_Notebook.configure(width=214)
+        self.Clustering_Notebook.configure(takefocus="")
+        self.Clustering_Notebook.configure(style=PNOTEBOOK)
+        self.Clustering_Notebook_t0 = tk.Frame(self.Clustering_Notebook)
+        self.Clustering_Notebook.add(self.Clustering_Notebook_t0, padding=3)
+        self.Clustering_Notebook.tab(0, text="Page 1", compound="none", underline = "-1", )
+        self.Clustering_Notebook_t0.configure(background="#d9d9d9")
+        self.Clustering_Notebook_t0.configure(highlightbackground="#d9d9d9")
+        self.Clustering_Notebook_t0.configure(highlightcolor="black")
+        self.Clustering_Notebook_t1 = tk.Frame(self.Clustering_Notebook)
+        self.Clustering_Notebook.add(self.Clustering_Notebook_t1, padding=3)
+        self.Clustering_Notebook.tab(1, text="Page 2", compound="none", underline = "-1", )
+
+        self.Clustering_Notebook_t1.configure(background="#d9d9d9")
+        self.Clustering_Notebook_t1.configure(highlightbackground="#d9d9d9")
+        self.Clustering_Notebook_t1.configure(highlightcolor="black")
+        # self.Clustering_Notebook.bind('<Button-1>', _button_press)
+        # self.Clustering_Notebook.bind('<ButtonRelease-1>', _button_release)
+        # self.Clustering_Notebook.bind('<Motion>', _mouse_over)
+
+        # self.SaveRes_Button = ttk.Button(self.SimilarityRestaurants_Frame)
+        # self.SaveRes_Button.place(relx=0.024, rely=0.899, height=25, width=86)
+        # self.SaveRes_Button.configure(takefocus="")
+        # self.SaveRes_Button.configure(text='''Save results''')
+        # self.SaveRes_Button.configure(width=86)
 
         print("......COMPILING DATA, ALMOST......")
         try:
@@ -560,8 +652,28 @@ class Toplevel1:
             self.show_DetailsInfo_Frame(False)
         except:
             raise ("CANT CREATE DATABASE!")
-
-
+    #
+    # def openFrame(self):
+    #     """"""
+    #     self.hide()
+    #     subFrame = OtherFrame()
+    #     handler = lambda: self.onCloseOtherFrame(subFrame)
+    #     btn = tk.Button(subFrame, text="Close", command=handler)
+    #     btn.pack()
+    #
+    # def hide(self):
+    #     """"""
+    #     self.root.withdraw()
+    #
+    # def show(self):
+    #     """"""
+    #     self.root.update()
+    #     self.root.deiconify()
+    #
+    # def onCloseOtherFrame(self, otherFrame):
+    #     """"""
+    #     otherFrame.destroy()
+    #     self.show()
     def onClick_Search(self):
 
         if(len(self.query_textEntry.get()) == 0):
@@ -603,14 +715,26 @@ class Toplevel1:
                 self.reviewsAnsList = self.db.businessSentimentAnalysis_FromCSV(self.path)
             else:
                 self.reviewsAnsList = self.db.businessSentimentAnalysis_FromDATASET(self.query_textEntry.get())
+
+            self.positiveIndexes = [i for i, x in enumerate(self.reviewsAnsList[0]) if x == 1]
+            self.negativeIndexes = [i for i, x in enumerate(self.reviewsAnsList[0]) if x == -1]
             self.numberReviews_Label.configure(text=len(self.reviewsAnsList[2]))
             self.show_ReviewsView_Frame(True)
             if (len(self.reviewsAnsList[2]) > 0):
+                if (self.canvas is not None):
+                    self.canvas.get_tk_widget().pack_forget()
                 self.putPieChart(self.reviewsAnsList[0])
+                if len([self.reviewsAnsList[2][x] for x in self.positiveIndexes]) > 0:
+                    self.positiveClusters = self.db.get_text_prediction([self.reviewsAnsList[2][x] for x in self.positiveIndexes])
+                    print("GOOD CLUSTERS: "+ str(self.positiveClusters))
+                if len([self.reviewsAnsList[2][x] for x in self.negativeIndexes]) > 0:
+                    self.negativeClusters = self.db.get_text_prediction([self.reviewsAnsList[2][x] for x in self.negativeIndexes])
+                    print("BAD CLUSTERS: "+ str(self.negativeClusters))
+
             if self.radioButtonVar_Dataset.get() == 1:
                 self.LoadReview_Button.configure(state='disabled')
                 self.reviewPath_textEntry.configure(state='disabled')
-            print(self.db.get_text_prediction(self.reviewsAnsList[2]))
+
 
     def onClick_Go(self):
         self.catAnsList = None
@@ -803,7 +927,20 @@ class Toplevel1:
         else:
             self.Go_Button.configure(state='disabled')
 
+
+    def recommedsPopUp(self):
+        print("shit! ")
+    # def saveResults(self):
+    #     fileName = "Recommends_"+str(self.query_textEntry.get()).replace(' ','_')+"_"+str(self.numResult_textInput.get())+"_"
+    #     if(self.CategorySim_CheckBVar.get() == 1):
+    #         fileName = fileName + "_CategoriesSim"
+    #     if(self.locationSim_CheckBVar.get() == 1):
+    #         fileName = fileName + "_LocationSim"
+    #     with open(fileName+".csv","w") as file:
+
+
     def resetAll(self):
+
         self.reviewPath_textEntry.delete(0, 'end')
         self.show_ReviewsView_Frame(False)
         self.show_ReviewsView_Frame_RadioB(False)
