@@ -23,8 +23,8 @@ import os
 class DataBase:
 
     def __init__(self,path):
-        self.review_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\selected_entries_reviews_30k.json").map(json.loads).to_dataframe()
-        self.business_Json = db.read_text("C:\\Users\\User\\Desktop\\DATA_SET\\business_MinCorpus.json").map(json.loads).to_dataframe()
+        self.review_Json = db.read_text("selected_entries_reviews_30k.json").map(json.loads).to_dataframe()
+        self.business_Json = db.read_text("business_MinCorpus.json").map(json.loads).to_dataframe()
         # self.checkin_Json = db.read_text(pathToDataSet+"\\checkin.json").map(json.loads).to_dataframe()
         # self.photo_Json = db.read_text(pathToDataSet+"\\photo.json").map(json.loads).to_dataframe()
         # self.tip_Json = db.read_text(pathToDataSet+"\\tip.json").map(json.loads).to_dataframe()
@@ -81,6 +81,11 @@ class DataBase:
         # print(namesAns)
         return namesAns
 
+
+    '''
+    @:param: bussienss name to search in DataSET, max Radius to look
+    @:return: List of places
+    '''
     def similarity_By_GPS(self, bussinessName, maxRadius):
         import geopy.distance
         coordsX = self.business_Json[self.business_Json['name'] == bussinessName]['latitude'].compute().tolist()[0]
@@ -98,7 +103,6 @@ class DataBase:
     '''
     @:return: Model
     '''
-
     def buildModel(self):
         cleanReviews = []
         ratesBinary = []
@@ -153,7 +157,6 @@ class DataBase:
     @:param: List of reviews
     @:return: List of occurrences (1=positive, -1 negative) -- BY MODEL
     '''
-
     def predictReviewsList(self, reviewsList):
         ans = []
         vectorizer = pickle.load(open("cv", "rb"))
@@ -166,7 +169,6 @@ class DataBase:
     @:param: bussienss name to search in DataSET
     @:return: List of occurrences (1=positive, -1 negative) -- BY RATES in dataset
     '''
-
     def useRateToPredict(self, bussinessID):
         ans = []
         bussinessRates = self.review_Json[self.review_Json['business_id'] == bussinessID][
@@ -184,8 +186,7 @@ class DataBase:
     '''
 
     def businessSentimentAnalysis_FromDATASET(self, bussinessName):
-        bussinessID = \
-        self.business_Json[self.business_Json['name'] == bussinessName]['business_id'].compute().tolist()[0]
+        bussinessID = self.business_Json[self.business_Json['name'] == bussinessName]['business_id'].compute().tolist()[0]
         reviewsList = self.review_Json[self.review_Json['business_id'] == bussinessID]['text'].compute().tolist()
         # print("\n------------------------\n".join(reviewsList))
         ans = self.useRateToPredict(bussinessID)
@@ -210,7 +211,7 @@ class DataBase:
         # return list: [0]= shows, [1]=precentages
         counter = Counter(ans)
         # print([(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter])
-        print(reviewsList)
+        # print(reviewsList)
         return ([self.predictReviewsList(reviewsList[0]), [(i, round(counter[i] / len(ans) * 100.0, 2)) for i in counter],reviewsList[0]])
 
     def preprocess_reviews_text(self, text):
@@ -231,9 +232,9 @@ class DataBase:
         df = pd.DataFrame(data.todense()).groupby(clusters).mean()
         dict = {}
         for i, r in df.iterrows():
-            print('\nCluster {}'.format(i))
+            # print('\nCluster {}'.format(i))
             list = ','.join([labels[t] for t in np.argsort(r)[-n_terms:]])
-            print(list)
+            # print(list)
             dict[i] = list.split(",")[:6]
 
         with open('clusters_labels.json', 'w') as fp:
@@ -251,13 +252,13 @@ class DataBase:
             token_pattern='[a-zA-Z0-9]+',
             preprocessor=self.preprocess_tfidf
         )
-        print("Created vectorizer.")
+        # print("Created vectorizer.")
         tfidf.fit(processed_reviews)
-        print("Vectorizer fitted.")
+        # print("Vectorizer fitted.")
         pickle.dump(tfidf.vocabulary_, open("tfidf_vocabulary", 'wb'))
 
         text = tfidf.transform(processed_reviews)
-        print("transformed reviews")
+        # print("transformed reviews")
         # # max_k = 14
         # # iters = range(2, max_k + 1, 2)
         # #
@@ -288,7 +289,7 @@ class DataBase:
         with open('clusters_labels.json') as json_file:
             data = json.load(json_file)
 
-        print("Load and create vectorizer")
+        # print("Load and create vectorizer")
         loaded_vec = TfidfVectorizer(vocabulary=pickle.load(open("tfidf_vocabulary", 'rb')),
                                      # max_df=0.95,
                                      max_features=8000,
@@ -319,7 +320,7 @@ def makeMiniCorpusCopy():
             for i in range(500000):
                 miniFile.write(json_file.readline())
         json_file.close()
-        print(str("review_MinCorpus_500K.json") + " is created! ")
+        # print(str("review_MinCorpus_500K.json") + " is created! ")
 
 
 

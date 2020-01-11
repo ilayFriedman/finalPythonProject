@@ -9,7 +9,7 @@ import sys
 import threading
 from collections import Counter
 
-from PIL import ImageTk
+from PIL import ImageTk, Image
 
 import main
 import matplotlib.figure
@@ -53,7 +53,7 @@ def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = tk.Tk()
-    photo = PhotoImage(file="background5.png")
+    photo = PhotoImage(file="background3.png")
     w = Label(root, image=photo)
     w.pack()
     top = Toplevel1 (root)
@@ -83,12 +83,19 @@ class Toplevel1:
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
         _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85' 
+        _ana1color = '#d9d9d9' # X11 color: 'gray85'
         _ana2color = '#ececec' # Closest X11 color: 'gray92' 
         font11 = "-family {Segoe UI} -size 40 -weight bold -slant "  \
             "roman -underline 0 -overstrike 0"
-        font12 = "-family {Segoe UI} -size 9 -weight bold -slant roman" \
+        font12 = "-family {Calibri} -size 9 -weight bold -slant roman" \
         " -underline 0 -overstrike 0"
+
+        font13 = "-family {Calibri} -size 11 -weight bold -slant "  \
+            "roman -underline 0 -overstrike 0"
+
+        font14 = "-family {Calibri} -size 10 -weight bold -slant "  \
+            "roman -underline 0 -overstrike 0"
+
 
         self.style = ttk.Style()
         if sys.platform == "win32":
@@ -101,7 +108,7 @@ class Toplevel1:
 
         top.geometry("1442x870+250+35")
         top.title("Yelper")
-        top.configure(background="#d9d9d9")
+        top.configure(background="#adad85")
 
         #COMMANDS!
         enable_ReviewsView_Frame_TRUE = partial(self.show_ReviewsView_Frame, True)
@@ -120,8 +127,9 @@ class Toplevel1:
         self.locationSim_CheckBVar.set(0)
         self.canvas =None
         self.threadContinue = None
+        self.recoWindow = None
 
-        print("......CREATING ALL THE LABELS......")
+        # print("......CREATING ALL THE LABELS......")
         self.queryFrame = ttk.Frame(top)
         self.queryFrame.place(relx=0.202, rely=0.047, relheight=0.087, relwidth=0.634)
         self.queryFrame.configure(relief='groove')
@@ -137,10 +145,10 @@ class Toplevel1:
         # self.query_textEntry.configure(cursor="ibeam")
 
         self.enterResturant_Label = ttk.Label(self.queryFrame)
-        self.enterResturant_Label.place(relx=0.0, rely=-0.091, height=19, width=122)
+        self.enterResturant_Label.place(relx=0.0, rely=0, height=19, width=300)
         self.enterResturant_Label.configure(background="#d9d9d9")
         self.enterResturant_Label.configure(foreground="#000000")
-        self.enterResturant_Label.configure(font="TkDefaultFont")
+        self.enterResturant_Label.configure(font=font13)
         self.enterResturant_Label.configure(relief='flat')
         self.enterResturant_Label.configure(text='''Enter Resturant Name:''')
 
@@ -182,7 +190,7 @@ class Toplevel1:
         self.ResturantDetails_Label.place(relx=0.0, rely=0.0, height=19, width=95)
         self.ResturantDetails_Label.configure(background="#d9d9d9")
         self.ResturantDetails_Label.configure(foreground="#000000")
-        self.ResturantDetails_Label.configure(font="TkDefaultFont")
+        self.ResturantDetails_Label.configure(font=font13)
         self.ResturantDetails_Label.configure(relief='flat')
         self.ResturantDetails_Label.configure(text='''Resturant Details:''')
 
@@ -276,11 +284,12 @@ class Toplevel1:
         self.Reviewsview_Frame.configure(relief='groove')
         self.Reviewsview_Frame.configure(width=465)
 
+
         self.Reviewsview_Label = ttk.Label(self.Reviewsview_Frame)
-        self.Reviewsview_Label.place(relx=0.0, rely=-0.014, height=19, width=73)
+        self.Reviewsview_Label.place(relx=0.0, rely=0, height=19, width=173)
         self.Reviewsview_Label.configure(background="#d9d9d9")
         self.Reviewsview_Label.configure(foreground="#000000")
-        self.Reviewsview_Label.configure(font="TkDefaultFont")
+        self.Reviewsview_Label.configure(font=font13)
         self.Reviewsview_Label.configure(relief='flat')
         self.Reviewsview_Label.configure(text='''Reviews view''')
 
@@ -327,65 +336,44 @@ class Toplevel1:
 
 
         self.totalReviews_Label = ttk.Label(self.Reviewsview_Frame)
-        self.totalReviews_Label.place(relx=0.043, rely=0.348, height=19, width=78)
+        self.totalReviews_Label.place(relx=0.022, rely=0.348, height=19, width=100)
         self.totalReviews_Label.configure(background="#d9d9d9")
         self.totalReviews_Label.configure(foreground="#000000")
-        self.totalReviews_Label.configure(font="TkDefaultFont")
+        self.totalReviews_Label.configure(font=font13)
         self.totalReviews_Label.configure(relief='flat')
         self.totalReviews_Label.configure(text='''Total reviews:''')
 
         self.numberReviews_Label = ttk.Label(self.Reviewsview_Frame)
-        self.numberReviews_Label.place(relx=0.237, rely=0.348, height=19
-                , width=16)
+        self.numberReviews_Label.place(relx=0.180, rely=0.348, height=19
+                , width=20)
         self.numberReviews_Label.configure(background="#d9d9d9")
         self.numberReviews_Label.configure(foreground="#d9d9d9")
         self.numberReviews_Label.configure(font="TkDefaultFont")
         self.numberReviews_Label.configure(relief='flat')
         self.numberReviews_Label.configure(text='''20''')
 
-        # self.style.configure('Treeview.Heading',  font="TkDefaultFont")
-        # self.resultTreeTopic_ScrollTree = ScrolledTreeView(self.Reviewsview_Frame)
-        # self.resultTreeTopic_ScrollTree.place(relx=0.022, rely=0.493, relheight=0.368, relwidth=0.581)
-        # self.resultTreeTopic_ScrollTree.configure(columns=('Col1', 'Col2'))
-        # self.resultTreeTopic_ScrollTree.heading("#0",text="")
-        # self.resultTreeTopic_ScrollTree.heading("#0",anchor="center")
-        # self.resultTreeTopic_ScrollTree.column("#0",width="25")
-        # self.resultTreeTopic_ScrollTree.column("#0",minwidth="20")
-        # self.resultTreeTopic_ScrollTree.column("#0",stretch="1")
-        # self.resultTreeTopic_ScrollTree.column("#0",anchor="w")
-        # self.resultTreeTopic_ScrollTree.heading("Col1",text="Review")
-        # self.resultTreeTopic_ScrollTree.heading("Col1",anchor="center")
-        # self.resultTreeTopic_ScrollTree.column("Col2",width="126")
-        # self.resultTreeTopic_ScrollTree.heading("Col2",text="Positive/Negative")
-        # self.resultTreeTopic_ScrollTree.heading("Col2",anchor="center")
-        # self.resultTreeTopic_ScrollTree.column("Col2",width="126")
-        # # self.resultTreeTopic_ScrollTree.column("Col1",minwidth="20")
-        # # self.resultTreeTopic_ScrollTree.column("Col1",stretch="1")
-        # # self.resultTreeTopic_ScrollTree.column("Col1",anchor="w")
-        # self.resultTreeTopic_ScrollTree['show'] = 'headings'
 
         self.chartFrame = ttk.Frame(self.Reviewsview_Frame)
         self.chartFrame.place(relx=0.470, rely=0.379, relheight=0.544, relwidth = 0.495)
 
         self.pieChart_Label = ttk.Label(self.Reviewsview_Frame)
-        self.pieChart_Label.place(relx=0.824, rely=0.300, height=19, width=55)
+        self.pieChart_Label.place(relx=0.500, rely=0.330, height=20, width=300)
         self.pieChart_Label.configure(background="#d9d9d9")
         self.pieChart_Label.configure(foreground="#000000")
-        self.pieChart_Label.configure(font="TkDefaultFont")
+        self.pieChart_Label.configure(font=font13)
         self.pieChart_Label.configure(relief='flat')
-        self.pieChart_Label.configure(text='''Pie Chart:''')
+        self.pieChart_Label.configure(text='''Reviews Type Pie Chart:''')
 
         self.mainTopics_Label = ttk.Label(self.Reviewsview_Frame)
-        self.mainTopics_Label.place(relx=0.022, rely=0.435, height=19, width=69)
+        self.mainTopics_Label.place(relx=0.022, rely=0.400, height=30, width=100)
         self.mainTopics_Label.configure(background="#d9d9d9")
         self.mainTopics_Label.configure(foreground="#000000")
-        self.mainTopics_Label.configure(font="TkDefaultFont")
+        self.mainTopics_Label.configure(font=font13)
         self.mainTopics_Label.configure(relief='flat')
         self.mainTopics_Label.configure(text='''Main topics:''')
 
         self.SimilarityRestaurants_Frame = ttk.Frame(top)
-        self.SimilarityRestaurants_Frame.place(relx=0.532, rely=0.379
-                , relheight=0.544, relwidth=0.453)
+        self.SimilarityRestaurants_Frame.place(relx=0.532, rely=0.379, relheight=0.544, relwidth=0.453)
         self.SimilarityRestaurants_Frame.configure(relief='groove')
         self.SimilarityRestaurants_Frame.configure(borderwidth="2")
         self.SimilarityRestaurants_Frame.configure(relief='groove')
@@ -393,11 +381,11 @@ class Toplevel1:
         # self.SimilarityRestaurants_Frame.configure(cursor="fleur")
 
         self.SimilarityRestaurants_Label = ttk.Label(self.SimilarityRestaurants_Frame)
-        self.SimilarityRestaurants_Label.place(relx=0.0, rely=-0.014, height=19
-                , width=117)
+        self.SimilarityRestaurants_Label.place(relx=0.0, rely=0, height=19
+                , width=160)
         self.SimilarityRestaurants_Label.configure(background="#d9d9d9")
         self.SimilarityRestaurants_Label.configure(foreground="#000000")
-        self.SimilarityRestaurants_Label.configure(font="TkDefaultFont")
+        self.SimilarityRestaurants_Label.configure(font=font13)
         self.SimilarityRestaurants_Label.configure(relief='flat')
         self.SimilarityRestaurants_Label.configure(text='''Similarity Restaurants''')
 
@@ -522,12 +510,12 @@ class Toplevel1:
         self.ScaleA.set(0.5)
 
         self.weightA_Label = ttk.Label(self.SimilarityRestaurants_Frame)
-        self.weightA_Label.place(relx=0.188, rely=0.261, height=19, width=40)
+        self.weightA_Label.place(relx=0.2, rely=0.261, height=19, width=100)
         self.weightA_Label.configure(background="#d9d9d9")
         self.weightA_Label.configure(foreground="#000000")
-        self.weightA_Label.configure(font="TkDefaultFont")
+        self.weightA_Label.configure(font=font13)
         self.weightA_Label.configure(relief='flat')
-        self.weightA_Label.configure(text='''weight''')
+        self.weightA_Label.configure(text='''Importance''')
 
         self.locA_Label = ttk.Label(self.SimilarityRestaurants_Frame)
         self.locA_Label.place(relx=0.4, rely=0.362, height=19, width=60)
@@ -538,7 +526,7 @@ class Toplevel1:
         self.locA_Label.configure(text='''Locations''')
 
         self.catgoriesA_Label = ttk.Label(self.SimilarityRestaurants_Frame)
-        self.catgoriesA_Label.place(relx=0.024, rely=0.377, height=19, width=60)
+        self.catgoriesA_Label.place(relx=0.024, rely=0.362, height=19, width=60)
         self.catgoriesA_Label.configure(background="#d9d9d9")
         self.catgoriesA_Label.configure(foreground="#000000")
         self.catgoriesA_Label.configure(font="TkDefaultFont")
@@ -547,7 +535,7 @@ class Toplevel1:
 
         self.resultsTreeSim_ScrollTree = ScrolledTreeView(self.SimilarityRestaurants_Frame)
         self.resultsTreeSim_ScrollTree.place(relx=0.024, rely=0.493, relheight=0.397, relwidth=0.941)
-        self.resultsTreeSim_ScrollTree.configure(columns=('Col1', 'Col2'))
+        self.resultsTreeSim_ScrollTree.configure(columns=('Col1', 'Col2','Col3'))
         self.resultsTreeSim_ScrollTree.heading("#0",text="Tree")
         self.resultsTreeSim_ScrollTree.heading("#0",anchor="center")
         self.resultsTreeSim_ScrollTree.column("#0",width="190")
@@ -556,7 +544,7 @@ class Toplevel1:
         self.resultsTreeSim_ScrollTree.column("#0",anchor="w")
         self.resultsTreeSim_ScrollTree.heading("Col1",text="Rate")
         self.resultsTreeSim_ScrollTree.heading("Col1",anchor="center")
-        self.resultsTreeSim_ScrollTree.column("Col1",width="191")
+        self.resultsTreeSim_ScrollTree.column("Col1",width="30")
         self.resultsTreeSim_ScrollTree.column("Col1",minwidth="20")
         self.resultsTreeSim_ScrollTree.column("Col1",stretch="1")
         self.resultsTreeSim_ScrollTree.column("Col1",anchor="w")
@@ -566,6 +554,12 @@ class Toplevel1:
         self.resultsTreeSim_ScrollTree.column("Col2",minwidth="20")
         self.resultsTreeSim_ScrollTree.column("Col2",stretch="1")
         self.resultsTreeSim_ScrollTree.column("Col2",anchor="w")
+        self.resultsTreeSim_ScrollTree.heading("Col3",text="Stars")
+        self.resultsTreeSim_ScrollTree.heading("Col3",anchor="center")
+        self.resultsTreeSim_ScrollTree.column("Col3",width="30")
+        self.resultsTreeSim_ScrollTree.column("Col3",minwidth="20")
+        self.resultsTreeSim_ScrollTree.column("Col3",stretch="1")
+        self.resultsTreeSim_ScrollTree.column("Col3",anchor="w")
         self.resultsTreeSim_ScrollTree['show'] = 'headings'
         self.resultsTreeSim_ScrollTree.bind("<Double-1>", self.recommedsPopUp)
 
@@ -611,8 +605,7 @@ class Toplevel1:
                               "children": [
                                   ("ClosetabNotebook.label", {"side":
                                                                   "left", "sticky": ''}),
-                                  ("ClosetabNotebook.close", {"side":
-                                                                  "left", "sticky": ''}), ]})]})]})])
+                                   ]})]})]})])
         PNOTEBOOK = "ClosetabNotebook"
         self.style.configure('TNotebook.Tab', background=_bgcolor)
         self.style.configure('TNotebook.Tab', foreground=_fgcolor)
@@ -624,17 +617,35 @@ class Toplevel1:
         self.Clustering_Notebook.configure(style=PNOTEBOOK)
         self.Clustering_Notebook_t0 = tk.Frame(self.Clustering_Notebook)
         self.Clustering_Notebook.add(self.Clustering_Notebook_t0, padding=3)
-        self.Clustering_Notebook.tab(0, text="Page 1", compound="none", underline = "-1", )
-        self.Clustering_Notebook_t0.configure(background="#d9d9d9")
+        self.Clustering_Notebook.tab(0, text="Positive Topics", compound="none", underline = "-1", )
+        self.Clustering_Notebook_t0.configure(background="#FFFFFF")
         self.Clustering_Notebook_t0.configure(highlightbackground="#d9d9d9")
         self.Clustering_Notebook_t0.configure(highlightcolor="black")
         self.Clustering_Notebook_t1 = tk.Frame(self.Clustering_Notebook)
         self.Clustering_Notebook.add(self.Clustering_Notebook_t1, padding=3)
-        self.Clustering_Notebook.tab(1, text="Page 2", compound="none", underline = "-1", )
+        self.Clustering_Notebook.tab(1, text="Negative Topics", compound="none", underline = "-1", )
 
-        self.Clustering_Notebook_t1.configure(background="#d9d9d9")
+        self.Clustering_Notebook_t1.configure(background="#FFFFFF")
         self.Clustering_Notebook_t1.configure(highlightbackground="#d9d9d9")
         self.Clustering_Notebook_t1.configure(highlightcolor="black")
+
+        self.NegativeClusters_Label = ttk.Label(self.Clustering_Notebook_t1)
+        self.NegativeClusters_Label.place(relx=0.048, rely=0.077, height=119, width =260)
+        self.NegativeClusters_Label.configure(background="#FFFFFF")
+        self.NegativeClusters_Label.configure(foreground="#000000")
+        self.NegativeClusters_Label.configure(font="TkDefaultFont")
+        self.NegativeClusters_Label.configure(relief='flat')
+        self.NegativeClusters_Label.configure(text='''''')
+        self.NegativeClusters_Label.configure(width=195)
+
+        self.PositiveClusters_Label = ttk.Label(self.Clustering_Notebook_t0)
+        self.PositiveClusters_Label.place(relx=0.048, rely=0.077, height=109, width = 260)
+        self.PositiveClusters_Label.configure(background="#FFFFFF")
+        self.PositiveClusters_Label.configure(foreground="#000000")
+        self.PositiveClusters_Label.configure(font="TkDefaultFont")
+        self.PositiveClusters_Label.configure(relief='flat')
+        self.PositiveClusters_Label.configure(text='''''')
+        self.PositiveClusters_Label.configure(width=195)
         # self.Clustering_Notebook.bind('<Button-1>', _button_press)
         # self.Clustering_Notebook.bind('<ButtonRelease-1>', _button_release)
         # self.Clustering_Notebook.bind('<Motion>', _mouse_over)
@@ -645,10 +656,10 @@ class Toplevel1:
         # self.SaveRes_Button.configure(text='''Save results''')
         # self.SaveRes_Button.configure(width=86)
 
-        print("......COMPILING DATA, ALMOST......")
+        # print("......COMPILING DATA, ALMOST......")
         try:
             self.db = main.DataBase("/miniCorpus")
-            print("......AFTER CREATION......")
+            # print("......AFTER CREATION......")
             self.show_DetailsInfo_Frame(False)
         except:
             raise ("CANT CREATE DATABASE!")
@@ -710,30 +721,38 @@ class Toplevel1:
 
 
     def onClick_AnalysisReviews(self):
+        self.Clustering_Notebook.tab(1, text="Negative Topics", compound="none", underline = "-1", )
+        self.Clustering_Notebook.tab(0, text="Positive Topics", compound="none", underline = "-1", )
+        self.NegativeClusters_Label.configure(text='')
+        self.PositiveClusters_Label.configure(text='')
         # def run():
-            if (self.radioButtonVar_CSV.get() == 1):
-                self.reviewsAnsList = self.db.businessSentimentAnalysis_FromCSV(self.path)
-            else:
-                self.reviewsAnsList = self.db.businessSentimentAnalysis_FromDATASET(self.query_textEntry.get())
+        if (self.radioButtonVar_CSV.get() == 1):
+            self.reviewsAnsList = self.db.businessSentimentAnalysis_FromCSV(self.path)
+        else:
+            self.reviewsAnsList = self.db.businessSentimentAnalysis_FromDATASET(self.query_textEntry.get())
 
-            self.positiveIndexes = [i for i, x in enumerate(self.reviewsAnsList[0]) if x == 1]
-            self.negativeIndexes = [i for i, x in enumerate(self.reviewsAnsList[0]) if x == -1]
-            self.numberReviews_Label.configure(text=len(self.reviewsAnsList[2]))
-            self.show_ReviewsView_Frame(True)
-            if (len(self.reviewsAnsList[2]) > 0):
-                if (self.canvas is not None):
-                    self.canvas.get_tk_widget().pack_forget()
-                self.putPieChart(self.reviewsAnsList[0])
-                if len([self.reviewsAnsList[2][x] for x in self.positiveIndexes]) > 0:
-                    self.positiveClusters = self.db.get_text_prediction([self.reviewsAnsList[2][x] for x in self.positiveIndexes])
-                    print("GOOD CLUSTERS: "+ str(self.positiveClusters))
-                if len([self.reviewsAnsList[2][x] for x in self.negativeIndexes]) > 0:
-                    self.negativeClusters = self.db.get_text_prediction([self.reviewsAnsList[2][x] for x in self.negativeIndexes])
-                    print("BAD CLUSTERS: "+ str(self.negativeClusters))
+        self.positiveIndexes = [i for i, x in enumerate(self.reviewsAnsList[0]) if x == 1]
+        self.negativeIndexes = [i for i, x in enumerate(self.reviewsAnsList[0]) if x == -1]
+        self.numberReviews_Label.configure(text=len(self.reviewsAnsList[2]))
+        self.show_ReviewsView_Frame(True)
+        if (len(self.reviewsAnsList[2]) > 0):
+            if (self.canvas is not None):
+                self.canvas.get_tk_widget().pack_forget()
+            self.putPieChart(self.reviewsAnsList[0])
+            if len([self.reviewsAnsList[2][x] for x in self.positiveIndexes]) > 0:
+                self.positiveClusters = self.db.get_text_prediction(self.reviewsAnsList[2][x] for x in self.positiveIndexes)
+                self.PositiveClusters_Label.configure(text='\n'.join(', '.join(sub) for sub in self.positiveClusters))
+                # print("GOOD CLUSTERS: "+ str(self.positiveClusters))
+            if len([self.reviewsAnsList[2][x] for x in self.negativeIndexes]) > 0:
+                self.negativeClusters = self.db.get_text_prediction(self.reviewsAnsList[2][x] for x in self.negativeIndexes)
+                self.NegativeClusters_Label.configure(text='\n'.join(', '.join(sub) for sub in self.negativeClusters))
+                # print("BAD CLUSTERS: "+ str(self.negativeClusters))
+        self.Clustering_Notebook.tab(1, text="Negative Topics ("+str(len(self.negativeIndexes))+")", compound="none", underline = "-1", )
+        self.Clustering_Notebook.tab(0, text="Positive Topics ("+str(len(self.positiveIndexes))+")", compound="none", underline = "-1", )
 
-            if self.radioButtonVar_Dataset.get() == 1:
-                self.LoadReview_Button.configure(state='disabled')
-                self.reviewPath_textEntry.configure(state='disabled')
+        if self.radioButtonVar_Dataset.get() == 1:
+            self.LoadReview_Button.configure(state='disabled')
+            self.reviewPath_textEntry.configure(state='disabled')
 
 
     def onClick_Go(self):
@@ -759,11 +778,14 @@ class Toplevel1:
                 self.insertList = list(self.locAnsList)
         elif self.catAnsList != None:
                 self.insertList = list(self.catAnsList)
-
+        stars = []
+        for star in [item[0] for item in self.insertList]:
+            stars.append(self.db.business_Json[self.db.business_Json['name'] == star]['stars'].compute().tolist()[0])
+        # print(stars)
         self.resultsTreeSim_ScrollTree.delete(*self.resultsTreeSim_ScrollTree.get_children())
         for i in range(int(self.numResult_textInput.get())):
             if i < len(self.insertList):
-                self.resultsTreeSim_ScrollTree.insert("", 'end', text="L10", values=(i+1, self.insertList[i][0]))
+                self.resultsTreeSim_ScrollTree.insert("", 'end', text=i+1, values=(i+1, self.insertList[i][0],stars[i]))
             else:
                 break
 
@@ -869,16 +891,23 @@ class Toplevel1:
         rect = fig.patch
         rect.set_facecolor('#d9d9d9')
         counter = Counter(listPrecentage)
+        colors = ['#71da71', '#ff4d4d'
+                             '']
         sizes = [counter[1], counter[-1]]
-        ax.pie(sizes,autopct='%1.1f%%',shadow=True)
+        ax.pie(sizes, colors=colors,autopct='%1.1f%%',shadow=True)
         # , background = '#d9d9d9'
         # circle = matplotlib.patches.Circle((0, 0), 0.7, color='white')
         # ax.add_artist(circle)
+        colors = ['yellowgreen', 'gold']
         self.canvas = FigureCanvasTkAgg(fig, master=self.chartFrame)
         self.canvas.get_tk_widget().pack()
         self.canvas.draw()
 
     def switchImportRadioButton(self,whoIsClicked):
+        self.NegativeClusters_Label.configure(text='')
+        self.PositiveClusters_Label.configure(text='')
+        self.Clustering_Notebook.tab(1, text="Negative Topics", compound="none", underline = "-1", )
+        self.Clustering_Notebook.tab(0, text="Positive Topics", compound="none", underline = "-1", )
         if(whoIsClicked == "CSV"):
             if(self.radioButtonVar_Dataset.get() == 1):
                 self.radioButtonVar_Dataset.set(0)
@@ -928,8 +957,42 @@ class Toplevel1:
             self.Go_Button.configure(state='disabled')
 
 
-    def recommedsPopUp(self):
-        print("shit! ")
+    def recommedsPopUp(self,event):
+        if str(self.Go_Button['state']) != 'disabled' and len(self.resultsTreeSim_ScrollTree.get_children()) > 0:
+            self.selectedItemName = self.resultsTreeSim_ScrollTree.item(event.widget.selection())['values'][1]
+            bussinessID = self.db.business_Json[self.db.business_Json['name'] == self.selectedItemName]['business_id'].compute().tolist()[0]
+            # reviewsList = self.db.review_Json[self.db.review_Json['business_id'] == bussinessID]['text'].compute().tolist()
+            self.reviewsAnsListOther = self.db.businessSentimentAnalysis_FromDATASET(self.selectedItemName)
+            self.positiveIndexesOther = [i for i, x in enumerate(self.reviewsAnsListOther[0]) if x == 1]
+            self.negativeIndexesOther = [i for i, x in enumerate(self.reviewsAnsListOther[0]) if x == -1]
+            other_out_put = "The topics of the "+ str(self.selectedItemName)+" Bussiness:\n\n\n"
+            if len([self.reviewsAnsListOther[2][x] for x in self.positiveIndexesOther]) > 0:
+                self.positiveClustersOther = self.db.get_text_prediction(self.reviewsAnsListOther[2][x] for x in self.positiveIndexesOther)
+                other_out_put = other_out_put +"The Positive Topics: \n"+'\n'.join(', '.join(sub) for sub in self.positiveClustersOther)+'\n\n\n'
+                # print("GOOD CLUSTERS: " + str(self.positiveClustersOther))
+            else:
+                other_out_put = other_out_put + "The Positive Topics: \n ~Nothing To Show~\n\n\n"
+
+            if len([self.reviewsAnsListOther[2][x] for x in self.negativeIndexesOther]) > 0:
+                self.negativeClustersOther = self.db.get_text_prediction(self.reviewsAnsListOther[2][x] for x in self.negativeIndexesOther)
+                other_out_put = other_out_put + "The Negative Topics: \n"+'\n'.join(', '.join(sub) for sub in self.negativeClustersOther)
+                # print("BAD CLUSTERS: " + str(self.negativeClustersOther))
+            else:
+                other_out_put = other_out_put + "The Negative Topics: \n ~Nothing To Show~\n\n\n"
+
+            if (self.recoWindow != None):
+                self.recoWindow.destroy()
+                self.recoWindow = None
+
+            self.recoWindow = tk.Toplevel()
+            self.recoWindow.geometry("400x220")
+            self.recoWindow.title("Recommends")
+
+            lbl = Label(self.recoWindow, text=other_out_put)
+            lbl.grid(column=0, row=0)
+            self.recoWindow.columnconfigure(0, weight=1)
+            self.recoWindow.rowconfigure(0, weight=1)
+
     # def saveResults(self):
     #     fileName = "Recommends_"+str(self.query_textEntry.get()).replace(' ','_')+"_"+str(self.numResult_textInput.get())+"_"
     #     if(self.CategorySim_CheckBVar.get() == 1):
@@ -957,6 +1020,13 @@ class Toplevel1:
         self.locationSim_CheckB.configure(state='disabled')
         self.numResult_textInput.configure(state='disabled')
         self.resultsTreeSim_ScrollTree.delete(*self.resultsTreeSim_ScrollTree.get_children())
+        self.NegativeClusters_Label.configure(text='')
+        self.PositiveClusters_Label.configure(text='')
+        self.categoriesInput_textEntry.configure(state='disabled')
+        self.locationInput_textEntry.configure(state='disabled')
+        self.Clustering_Notebook.tab(1, text="Negative Topics", compound="none", underline = "-1", )
+        self.Clustering_Notebook.tab(0, text="Positive Topics", compound="none", underline = "-1", )
+        self.Go_Button.configure(state='disabled')
 
 
 

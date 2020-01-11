@@ -19,7 +19,7 @@
 #     print(list(set(business_Json['business_id'].compute().tolist()) & set(review_Json['business_id'].compute().tolist())))
 #
 #
-# # from tkinter import *
+
 # # #!/usr/bin/env python3
 # # # -*-coding: utf8-*-
 # # import tkinter as Tk
@@ -131,7 +131,19 @@
 # #
 # # root.mainloop()
 
+import tkinter as tk
 
-a= [2,3,2,1]
-indices = [i for i, x in enumerate(a) if x == 2]
-print(indices)
+from PIL import ImageTk
+
+from tkinter import *
+from tkinter import messagebox
+top = Tk()
+
+C = Canvas(top, bg="blue", height=250, width=300)
+filename = PhotoImage(file = "background3.png")
+background_label = Label(top, image=filename)
+background_label.place(x=0, y=0, relwidth=1, relheight=1)
+w = tk.Label(top, text="Hello Tkinter!")
+w.pack()
+C.pack()
+top.mainloop()
