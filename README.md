@@ -1,4 +1,4 @@
-# finalPythonProject
+# From Yelp Dataset to Business Insight
 
 This assignment was done during the Fall semster of 2019-2020, as part of a Principals of Programming Languages course in Ben Gurion University.
 In this repository you can find the given assignment, and the different files we created.
